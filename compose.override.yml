@@ -13,6 +13,7 @@ services:
       - API_URL=${API_URL}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
+      - JWT_SECRET=${JWT_SECRET}
 
     networks:
       - network

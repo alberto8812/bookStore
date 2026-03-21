@@ -12,6 +12,7 @@ interface EnvConfig {
     DB_NAME: string;
     REDIS_HOST: string;
     REDIS_PORT: number;
+    JWT_SECRET: string;
 
 }
 
@@ -24,6 +25,7 @@ const ensSchema = joi.object({
     DB_NAME: joi.string().required(),
     REDIS_HOST: joi.string().default('localhost'),
     REDIS_PORT: joi.number().default(6379),
+    JWT_SECRET: joi.string().required(),
 })
     .unknown(true) // allow other keys
 
@@ -44,5 +46,6 @@ export const envs = {
     database: envVars.DB_NAME,
     redisHost: envVars.REDIS_HOST,
     redisPort: envVars.REDIS_PORT,
+    jwtSecret: envVars.JWT_SECRET
 
 }
