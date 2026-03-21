@@ -118,6 +118,29 @@ docker exec bookstore-backend-1 npx prisma generate
 | email | String | Email único |
 | password | String | Contraseña |
 
+## Instalar dependencias
+
+Siempre instala dentro del contenedor para que el cambio sea inmediato y se actualicen `package.json` y `pnpm-lock.yaml` en tu máquina local (gracias al volume mount).
+
+```bash
+# Instalar una dependencia
+docker exec bookstore-backend-1 pnpm add <paquete>
+
+# Instalar una dependencia de desarrollo
+docker exec bookstore-backend-1 pnpm add -D <paquete>
+```
+
+Luego commitea los archivos actualizados y haz rebuild para que la imagen quede lista:
+
+```bash
+git add back/package.json back/pnpm-lock.yaml
+git commit -m "feat: add <paquete>"
+
+docker compose up --build
+```
+
+> El rebuild es necesario porque `node_modules` vive en un volumen anónimo que se pierde al bajar los contenedores con `docker compose down -v` o en otro entorno.
+
 ## Hot-reload
 
 El backend usa `nest start --watch`. Cualquier cambio en `back/src/` se refleja automáticamente sin necesidad de rebuild.
