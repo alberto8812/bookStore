@@ -5,8 +5,12 @@ services:
       dockerfile: dockerfile.dev
     ports:
       - "3000:3000"
+    volumes:
+      - .:/usr/app/src
+      - /usr/app/src/node_modules
     networks:
       - backend
+      - network
 
 networks:
   backend:
