@@ -9,7 +9,12 @@ import { PaginationDto } from 'src/shared/dto/pagination.dto';
 export class BookStoreController {
   constructor(private readonly bookStoreService: BookStoreService) { }
 
-  @Post()
+  @Endpoint({
+    method: 'POST',
+    summary: 'Create a new book',
+    route: '',
+    responses: [{ status: 201, description: 'The book has been successfully created.', type: Object }],
+  })
   create(@Body() createBookStoreDto: CreateBookStoreDto) {
     return this.bookStoreService.create(createBookStoreDto);
   }
@@ -24,17 +29,26 @@ export class BookStoreController {
     return this.bookStoreService.findAll();
   }
 
-  @Get(':id')
+  @Endpoint({
+    method: 'GET',
+    summary: 'Get a book by ID',
+    route: ':id',
+    responses: [{ status: 200, description: 'The found record', type: Object }],
+  })
   findOne(@Param('id') id: string) {
     return this.bookStoreService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Endpoint({
+    method: 'PATCH',
+    summary: 'Update a book by ID',
+    route: ':id',
+    responses: [{ status: 200, description: 'The updated record', type: Object }],
+  })
   update(@Param('id') id: string, @Body() updateBookStoreDto: UpdateBookStoreDto) {
     return this.bookStoreService.update(+id, updateBookStoreDto);
   }
 
-  @Delete(':id')
   remove(@Param('id') id: string) {
     return this.bookStoreService.remove(+id);
   }
