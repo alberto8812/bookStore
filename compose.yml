@@ -1,0 +1,44 @@
+include:
+  - path: ./back/compose.yml
+
+services:
+  # reverse-proxy:
+  #   image: nginx:alpine
+  #   container_name: erp-reverse-proxy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - type: bind
+  #       source: ./reverse-proxy/nginx.conf
+  #       target: /etc/nginx/nginx.conf
+  #   depends_on:
+  #    - backend
+  #   networks:
+  #     - network
+  # ── PostgreSQL (Master DB + Tenant DBs) ────────────────────────────────
+  postgres:
+    image: postgres:16.2
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - network
+
+volumes:
+  postgres_data:
+networks:
+  network:
+    driver: bridge
