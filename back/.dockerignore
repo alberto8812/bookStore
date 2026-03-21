@@ -1,0 +1,64 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+dist
+.next
+out
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Test
+coverage
+.nyc_output
+test
+*.spec.ts
+*.test.ts
+jest.config.*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Development
+.eslintrc*
+.prettierrc*
+eslint.config.*
+tsconfig.*.json
+nest-cli.json
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Claude/AI
+.claude
+.cursor
+.agents
+
+# Misc
+.DS_Store
+Thumbs.db
+*.tsbuildinfo

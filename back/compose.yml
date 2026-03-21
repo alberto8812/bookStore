@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    volumes:
+      - .:/usr/app/src
+      - /usr/app/src/node_modules
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
