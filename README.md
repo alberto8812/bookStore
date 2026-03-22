@@ -175,6 +175,22 @@ bookStore/
 
 ---
 
+## Swagger
+
+La documentación interactiva de la API está disponible en:
+
+```
+http://localhost:3000/docs
+```
+
+Incluye todos los endpoints con sus parámetros, cuerpos de request y respuestas. Para endpoints protegidos con `@Auth()`, haz clic en **Authorize** e ingresa el token JWT con el formato:
+
+```
+Bearer <tu_token>
+```
+
+---
+
 ## Paginación
 
 Los endpoints de listado usan **paginación por cursores** basada en `created_at + id`.
