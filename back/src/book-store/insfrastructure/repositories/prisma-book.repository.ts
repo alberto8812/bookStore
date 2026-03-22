@@ -151,7 +151,7 @@ export class PrismaBookRepository implements IBookRepository {
 
 
     findOne(id: string): Promise<any> {
-        throw new Error("Method not implemented.");
+        throw new Error("hoal mundo");
     }
 
     remove(id: string): Promise<any> {
