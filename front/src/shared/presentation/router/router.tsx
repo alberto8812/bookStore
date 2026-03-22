@@ -1,5 +1,6 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { Root } from "./Root";
+import { DashboardLayout } from "../layouts/DashBoardLayout";
 
 export const router = createBrowserRouter([
   {
@@ -7,8 +8,14 @@ export const router = createBrowserRouter([
     element: <Root />,
     children: [
       {
-        path: "/dashboard",
-        element: <h1>Dashboard</h1>,
+        path: "dashboard",
+        element: <DashboardLayout />,
+        children: [
+          {
+            path: "",
+            element: <h1>Dashboard</h1>,
+          },
+        ],
       },
     ],
   },
