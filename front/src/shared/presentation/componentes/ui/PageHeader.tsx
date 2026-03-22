@@ -15,7 +15,7 @@ interface PageHeaderProps {
 export const PageHeader = ({ pageHeader }: PageHeaderProps) => {
   return (
     <>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 pb-3">
         <div className="flex items-center gap-2">
           {pageHeader.filters?.map((action) => (
             <Button
