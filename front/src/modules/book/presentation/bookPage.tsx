@@ -1,11 +1,11 @@
 // import { Filter, Plus, Upload } from "lucide-react";
-// import { useBook } from "./hook/use-book";
+import { useBook } from "./hook/use-book";
 // import { useState } from "react";
 // import { PageHeader } from "@/shared/presentation/componentes/ui/PageHeader";
 // import { book } from "../../../../../back/dist/generated/prisma/models/book";
 
 export const BookPage = () => {
-  //   const { data, isLoading } = useBook();
+  const { data, isLoading } = useBook();
   //   const [dialogOpen, setDialogOpen] = useState({
   //     importOpen: false,
   //     editOpen: false,
@@ -42,9 +42,9 @@ export const BookPage = () => {
   //     setDialogOpen((prev) => ({ ...prev, editOpen: true }));
   //   };
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">Book. sssss</h1>
+    <div className="flex h-full flex-col p-3">
+      <div className="flex flex-col gap-1 ">
+        <h1 className="text-2xl font-semibold tracking-tight">Book</h1>
         <p className="text-sm text-muted-foreground">
           Administra los libros disponibles en la tienda, incluyendo detalles
         </p>

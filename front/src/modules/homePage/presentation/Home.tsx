@@ -1,5 +1,5 @@
 // ─── HOME PAGE ───────────────────────────────────────────────────────────────
-export default function Home() {
+export default function HomePage() {
   return (
     <>
       <style>{`
@@ -174,7 +174,8 @@ export default function Home() {
             className="hero-subtitle text-lg font-medium max-w-sm"
             style={{ color: "var(--color-text-gray)", lineHeight: 1.6 }}
           >
-            Tu plataforma de gestión de libros, simple y poderosa.
+            Tu plataforma de gestión de libros, simple y poderosa. carlos
+            velasco
           </p>
         </div>
       </div>
