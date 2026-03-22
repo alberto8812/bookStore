@@ -2,21 +2,21 @@ include:
   - path: ./back/compose.yml
 
 services:
-  # reverse-proxy:
-  #   image: nginx:alpine
-  #   container_name: erp-reverse-proxy
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - type: bind
-  #       source: ./reverse-proxy/nginx.conf
-  #       target: /etc/nginx/nginx.conf
-  #   depends_on:
-  #    - backend
-  #   networks:
-  #     - network
-  # ── PostgreSQL (Master DB + Tenant DBs) ────────────────────────────────
+  reverse-proxy-backend:
+    image: nginx:alpine
+    container_name: reverse-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - type: bind
+        source: ./reverse-proxy/nginx.conf
+        target: /etc/nginx/nginx.conf
+    depends_on:
+      - backend
+    networks:
+      - network
+
   postgres:
     image: postgres:16.2
     container_name: postgres
