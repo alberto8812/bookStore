@@ -30,6 +30,9 @@ model book {
 
   created_by    user?   @relation(fields: [created_by_id], references: [id])
   created_by_id String?
+
+  @@index([created_at(sort: Desc), id(sort: Desc)])
+  @@index([created_at(sort: Asc), id(sort: Asc)])
 }
 
 model user {
