@@ -1,16 +1,19 @@
-import { Outlet } from "react-router-dom";
-import { ErrorBoundary } from "../handkeErrors/GlobalErrorBoundary";
-import { PageError } from "../handkeErrors/PageError";
+import { useEffect, useState } from "react";
 
-export const DashboardLayout = () => {
+// ─── HOME PAGE ───────────────────────────────────────────────────────────────
+export default function Home() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <ErrorBoundary
-      fallback={(error, errorInfo) => {
-        return <PageError />;
-      }}
-    >
-      <>
-        <style>{`
+    <>
+      {/* Keyframes globales inyectados como <style> */}
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Dancing+Script:wght@600&family=Nunito:wght@400;600;700&display=swap');
 
         @keyframes waveLeft {
@@ -50,6 +53,9 @@ export const DashboardLayout = () => {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Nunito', sans-serif; }
       `}</style>
+
+      <div className="min-h-screen bg-white flex flex-col overflow-x-hidden">
+        {/* ── HERO ── */}
         <section className="relative flex flex-col items-center justify-center min-h-screen pt-24 pb-16 px-6 overflow-hidden">
           {/* Blobs decorativos */}
           <div
@@ -74,15 +80,8 @@ export const DashboardLayout = () => {
               animation: "blob 10s ease-in-out infinite reverse",
             }}
           />
-
-          <div
-            className="w-screen h-screen"
-            style={{ backgroundColor: "var(--color-white)" }}
-          >
-            <Outlet />
-          </div>
         </section>
-      </>
-    </ErrorBoundary>
+      </div>
+    </>
   );
-};
+}

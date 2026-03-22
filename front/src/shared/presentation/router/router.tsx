@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Root } from "./Root";
 import { DashboardLayout } from "../layouts/DashBoardLayout";
+import Home from "@/modules/book/BokkHomePage";
 
 export const router = createBrowserRouter([
   {
@@ -13,7 +14,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <h1>Dashboard</h1>,
+            element: <h1>Dashboardssssssssss</h1>,
           },
         ],
       },
