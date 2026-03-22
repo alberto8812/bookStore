@@ -1,10 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { BookOpen, Home } from "lucide-react";
-import {
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarInset,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "../componentes/ui/Sidebar";
 import type { AppSidebarConfig } from "../componentes/ui/Sidebar";
 import { ErrorBoundary } from "../handkeErrors/GlobalErrorBoundary";
@@ -38,28 +34,24 @@ export const DashboardLayout = () => {
       <SidebarProvider>
         <AppSidebar config={sidebarConfig} />
 
-        <SidebarInset>
-          {/* Header */}
+        <SidebarInset className="min-w-0">
+          {/* Mobile-only top bar */}
           <header
-            className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 px-4 border-b"
-            style={{
-              backgroundColor: "rgba(249,250,251,0.85)",
-              backdropFilter: "blur(8px)",
-              borderColor: "#e5e7eb",
-            }}
+            className="flex items-center gap-3 px-4 h-14 md:hidden"
+            style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}
           >
-            <SidebarTrigger />
-            <div className="h-4 w-px bg-gray-200" />
+            <SidebarTrigger
+              className="text-[var(--color-text-gray)] hover:text-[var(--color-text-dark)] hover:bg-[var(--color-teal-soft)] rounded-md transition-colors duration-150"
+            />
             <span
-              className="text-sm font-medium"
-              style={{ color: "var(--color-text-gray)" }}
+              className="font-semibold text-sm"
+              style={{ color: "var(--color-text-dark)" }}
             >
               BookStore
             </span>
           </header>
 
-          {/* Outlet */}
-          <main className="flex-1 ">
+          <main className="flex-1">
             <Outlet />
           </main>
         </SidebarInset>
