@@ -26,7 +26,7 @@ export class BookStoreusecaseService implements IBookUseCase {
       return cached as unknown as IPaginatedResult<BookModel>
     }
     const books = await this.bookRepository.findAll(paginationDto);
-    await this.cacheService.set(`${BOOK_CACHE_KEYS.FIND_ALL}_${JSON.stringify(paginationDto)}`, books.data);
+    await this.cacheService.set(`${BOOK_CACHE_KEYS.FIND_ALL}_${JSON.stringify(paginationDto)}`, books);
     return books;
   }
   findOne(id: string): Promise<BookModel | null> {
