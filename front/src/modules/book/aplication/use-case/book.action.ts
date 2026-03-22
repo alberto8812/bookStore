@@ -1,7 +1,7 @@
 import { generiActionQuery } from "@/shared/aplication/use-case/generi-action-query";
 import type { Book } from "../../domain/entity/book.entity";
 
-const actions = generiActionQuery<Book>("/books");
+const actions = generiActionQuery<Book>("/book-store");
 
 export const findAllPaginated = actions.findAllPaginated;
 export const findById = actions.findById;

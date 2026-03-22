@@ -4,32 +4,41 @@ import type { Book } from "../../domain/entity/book.entity";
 
 export const columnsBook: ColumnDef<Book>[] = [
   {
-    accessorKey: "iso_code",
-    header: "Código ISO",
+    accessorKey: "id",
+    header: "ID",
     cell: ({ row }) => (
-      <span className="font-medium">{row.getValue("iso_code")}</span>
+      <span className="font-medium">
+        {(row.getValue("id") as string).slice(0, 8)}
+      </span>
     ),
   },
   {
-    accessorKey: "name",
-    header: "Nombre",
+    accessorKey: "title",
+    header: "Título",
   },
   {
-    accessorKey: "phone_code",
-    header: "Código Tel.",
+    accessorKey: "author",
+    header: "Autor",
   },
   {
-    accessorKey: "currency_code",
-    header: "Moneda",
+    accessorKey: "description",
+    header: "Descripción",
   },
   {
-    accessorKey: "is_active",
+    accessorKey: "price",
+    header: "Precio",
+    cell: ({ row }) => (
+      <span>${(row.getValue("price") as number).toFixed(2)}</span>
+    ),
+  },
+  {
+    accessorKey: "status",
     header: "Estado",
     cell: ({ row }) => {
-      const active = row.getValue("is_active") as boolean;
+      const status = row.getValue("status") as "available" | "unavailable";
       return (
-        <Badge variant={active ? "success" : "destructive"}>
-          {active ? "Activo" : "Inactivo"}
+        <Badge variant={status === "available" ? "success" : "destructive"}>
+          {status === "available" ? "Disponible" : "No disponible"}
         </Badge>
       );
     },
