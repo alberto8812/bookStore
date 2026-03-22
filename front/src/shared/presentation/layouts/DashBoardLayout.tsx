@@ -1,6 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { ErrorBoundary } from "../handkeErrors/GlobalErrorBoundary";
 import { PageError } from "../handkeErrors/PageError";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "../componentes/ui/Sidebar";
 
 export const DashboardLayout = () => {
   return (
@@ -74,13 +76,16 @@ export const DashboardLayout = () => {
               animation: "blob 10s ease-in-out infinite reverse",
             }}
           />
-
-          <div
-            className="w-screen h-screen"
-            style={{ backgroundColor: "var(--color-white)" }}
-          >
-            <Outlet />
-          </div>
+          <SidebarProvider>
+            <AppSidebar />
+            <div
+              className="w-screen h-screen"
+              style={{ backgroundColor: "var(--color-white)" }}
+            >
+              <SidebarTrigger />
+              <Outlet />
+            </div>
+          </SidebarProvider>
         </section>
       </>
     </ErrorBoundary>
