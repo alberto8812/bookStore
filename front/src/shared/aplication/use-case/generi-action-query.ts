@@ -1,6 +1,6 @@
 import type { PaginatedResponse } from "@/shared/domain/base/base-entity.types";
 import type { CursorPaginationParams } from "@/shared/domain/base/base-repository.interface";
-import { apiClient } from "@/shared/http/api-client";
+import { apiClient } from "@/shared/presentation/http/api-client";
 
 
 export const generiActionQuery = <T>(basePath: string) => {

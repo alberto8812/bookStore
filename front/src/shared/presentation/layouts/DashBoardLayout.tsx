@@ -38,15 +38,7 @@ export const DashboardLayout = () => {
       <SidebarProvider>
         <AppSidebar config={sidebarConfig} />
 
-        <SidebarInset
-          style={{
-            background: `
-              radial-gradient(ellipse 50% 40% at 80% 10%, rgba(43,191,176,0.12) 0%, transparent 70%),
-              radial-gradient(ellipse 40% 35% at 10% 85%, rgba(43,191,176,0.10) 0%, transparent 70%),
-              #f9fafb
-            `,
-          }}
-        >
+        <SidebarInset>
           {/* Header */}
           <header
             className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 px-4 border-b"
@@ -67,7 +59,7 @@ export const DashboardLayout = () => {
           </header>
 
           {/* Outlet */}
-          <main className="flex-1 p-6">
+          <main className="flex-1 ">
             <Outlet />
           </main>
         </SidebarInset>

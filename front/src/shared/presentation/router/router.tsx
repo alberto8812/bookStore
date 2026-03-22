@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { Root } from "./Root";
 import { DashboardLayout } from "../layouts/DashBoardLayout";
 import Home from "@/modules/homePage/presentation/Home";
-
+import { BookPage } from "@/modules/book/presentation/bookPage";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -18,7 +18,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "books",
-            element: <h1>Books </h1>,
+            element: <BookPage />,
           },
         ],
       },
