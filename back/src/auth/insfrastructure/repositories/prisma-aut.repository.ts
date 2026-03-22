@@ -4,7 +4,7 @@ import { PrismaService } from "src/shared/db/postgres/prisma-manager.service";
 import * as bcrypt from 'bcrypt';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { JwtPayload } from "src/auth/interface/jwt.payload.interface";
+import { JwtPayload } from "src/auth/insfrastructure/interface/jwt.payload.interface";
 
 @Injectable()
 export class PrismaAuthRepository implements IAuthRepository {
@@ -22,7 +22,7 @@ export class PrismaAuthRepository implements IAuthRepository {
                 throw new BadRequestException('User with this email already exists');
             }
             const hashPassword = bcrypt.hashSync(password, 10);
-            await this.prisma.auth.create({
+            const user = await this.prisma.auth.create({
                 data: {
                     ...rest,
                     password: hashPassword
@@ -32,7 +32,7 @@ export class PrismaAuthRepository implements IAuthRepository {
 
             return {
                 ...rest,
-                token: "llll"
+                token: this.GetJwtToken({ id: user.id, email: user.email })
             }
 
         } catch (error) {
@@ -63,10 +63,36 @@ export class PrismaAuthRepository implements IAuthRepository {
         }
     }
 
+
+    async login(loginUserDto: any): Promise<any> {
+        try {
+            const { email, password } = loginUserDto;
+            const user = await this.findByEmail(email);
+            if (!user) {
+                throw new BadRequestException('Invalid credentials');
+            }
+            const isMatch = bcrypt.compareSync(password, user.password);
+            if (!isMatch) {
+                throw new BadRequestException('Invalid credentials');
+            }
+            const payload: JwtPayload = { email: user.email, id: user.id };
+            const token = this.GetJwtToken(payload);
+            return {
+                ...user,
+                token
+            }
+        } catch (error) {
+            this.logger.error('Error logging in', error);
+            this.handleDBEceptions(error)
+        }
+    }
+
     private GetJwtToken(payload: JwtPayload) {
         const token = this.jwtService.sign(payload);//codigo es sincrono
         return token;
     }
+
+
 
     private handleDBEceptions(error: any): never {
         console.log(error)
