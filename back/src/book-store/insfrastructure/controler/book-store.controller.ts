@@ -1,14 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { BookStoreService } from './book-store.service';
-import { CreateBookStoreDto } from './dto/create-book-store.dto';
-import { UpdateBookStoreDto } from './dto/update-book-store.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from '@nestjs/common';
+import { CreateBookStoreDto } from '../../aplication/dto/create-book-store.dto';
+import { UpdateBookStoreDto } from '../../aplication/dto/update-book-store.dto';
 import { Endpoint } from 'src/shared/decorator/endpoint.decorator';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
+import { Auth } from 'src/auth/insfrastructure/decorator/auth.decorator';
+import { BOOK_USE_CASE, IBookUseCase } from 'src/book-store/aplication/interfaces/book-use-case.interface';
 
 @Controller('book-store')
 export class BookStoreController {
-  constructor(private readonly bookStoreService: BookStoreService) { }
+  constructor(
+    @Inject(BOOK_USE_CASE) private readonly bookStoreService: IBookUseCase
+  ) { }
 
+  @Auth()
   @Endpoint({
     method: 'POST',
     summary: 'Create a new book',
@@ -26,7 +30,7 @@ export class BookStoreController {
     responses: [{ status: 200, description: 'Paginated list', type: Object }],
   })
   findAll(@Body() paginationDto: PaginationDto) {
-    return this.bookStoreService.findAll();
+    return this.bookStoreService.findAll(paginationDto);
   }
 
   @Endpoint({
@@ -36,9 +40,10 @@ export class BookStoreController {
     responses: [{ status: 200, description: 'The found record', type: Object }],
   })
   findOne(@Param('id') id: string) {
-    return this.bookStoreService.findOne(+id);
+    return this.bookStoreService.findOne(id);
   }
 
+  @Auth()
   @Endpoint({
     method: 'PATCH',
     summary: 'Update a book by ID',
@@ -46,10 +51,20 @@ export class BookStoreController {
     responses: [{ status: 200, description: 'The updated record', type: Object }],
   })
   update(@Param('id') id: string, @Body() updateBookStoreDto: UpdateBookStoreDto) {
-    return this.bookStoreService.update(+id, updateBookStoreDto);
+    return this.bookStoreService.update(id, updateBookStoreDto);
   }
 
+  @Auth()
+  @Endpoint({
+    method: 'DELETE',
+    summary: 'Delete a book by ID',
+    route: ':id',
+    responses: [{
+      status: 200, description: 'The record has been successfully deleted.',
+      type: Object
+    }],
+  })
   remove(@Param('id') id: string) {
-    return this.bookStoreService.remove(+id);
+    return this.bookStoreService.remove(id);
   }
 }
