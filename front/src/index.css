@@ -80,6 +80,29 @@
 
   --radius: 0.625rem;
 
+  /* Brand - Teal */
+  --color-teal: #2bbfb0;
+  --color-teal-dark: #25a99b;
+  --color-teal-logo: #1db8a8;
+  --color-teal-soft: #f0fdfb;
+
+  /* Neutrals */
+  --color-white: #ffffff;
+  --color-bg-section: #f9fafb;
+  --color-text-gray: #6b7280;
+  --color-text-dark: #374151;
+  --color-gray-light: #9ca3af;
+
+  /* Shadows / Accents */
+  --color-shadow-btn: rgba(43, 191, 176, 0.35);
+  --color-shadow-blob: rgba(43, 191, 176, 0.10);
+  --color-shadow-card: rgba(43, 191, 176, 0.08);
+
+  /* shadcn primary override — teal palette */
+  --primary: 175 68% 46%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 175 68% 46%;
+
   --sidebar: oklch(0.985 0 0);
 
   --sidebar-foreground: oklch(0.145 0 0);
