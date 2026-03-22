@@ -37,8 +37,20 @@ services:
     networks:
       - network
 
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - network
+
 volumes:
   postgres_data:
+  redis_data:
 networks:
   network:
     driver: bridge
