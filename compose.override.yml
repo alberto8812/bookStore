@@ -1,7 +1,9 @@
 services:
   backend:
+    ports:
+      - "3000:3000"
     environment:
-      - PORT=${PORT}
+      - PORT=${PORT_BACKEND}
       - DATABASE_URL=${DATABASE_URL}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
@@ -11,6 +13,7 @@ services:
       - API_URL=${API_URL}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
+      - JWT_SECRET=${JWT_SECRET}
 
     networks:
       - network
