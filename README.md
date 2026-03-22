@@ -14,6 +14,7 @@ API REST para gestión de libros construida con NestJS, Prisma 7 y PostgreSQL, o
 | Base de datos | PostgreSQL 16 |
 | Autenticación | JWT + Passport |
 | Gestor de paquetes | pnpm |
+| Reverse Proxy | Nginx (alpine) |
 | Entorno | Docker Compose |
 
 ---
@@ -137,7 +138,9 @@ bookStore/
 │   ├── generated/prisma/        # Cliente Prisma generado (no editar)
 │   ├── prisma.config.ts         # Configuración de Prisma 7
 │   └── dockerfile.dev
-├── compose.yml                  # Orquestación principal (PostgreSQL)
+├── reverse-proxy/
+│   └── nginx.conf               # Configuración del reverse proxy Nginx
+├── compose.yml                  # Orquestación principal (PostgreSQL + Nginx)
 ├── compose.override.yml         # Variables de entorno por servicio
 └── .env                         # Variables de entorno (no commitear)
 ```
@@ -175,13 +178,70 @@ bookStore/
 
 ---
 
+## Reverse Proxy (Nginx)
+
+El stack incluye un reverse proxy basado en **Nginx** que actúa como punto de entrada único en el puerto `80`. Esto evita exponer el backend directamente y permite enrutar el tráfico hacia los distintos servicios de forma centralizada.
+
+### Enrutamiento
+
+| Ruta pública | Destino interno | Descripción |
+|--------------|-----------------|-------------|
+| `localhost/docs` | `backend:3000/docs` | Swagger UI |
+| `localhost/api/` | `backend:3000/` | API REST |
+
+- Las peticiones a `/docs` se redirigen al servidor de documentación de NestJS.
+- Las peticiones a `/api/` se redirigen al backend con strip del prefijo `/api` (por ejemplo, `localhost/api/books` → `backend:3000/books`).
+- Nginx reenvía cabeceras relevantes: `Host`, `X-Real-IP`, `X-Forwarded-For` y `X-Forwarded-Proto`.
+
+### Arquitectura de red
+
+Todos los servicios comparten la misma red Docker interna (`network`, tipo `bridge`):
+
+```
+Internet
+    │
+    ▼
+ Nginx :80  (reverse-proxy)
+    │
+    ├── /docs   ──► backend:3000/docs
+    └── /api/   ──► backend:3000/
+                        │
+                   ┌────┴─────┐
+                   ▼          ▼
+             postgres:5432  redis:6379
+```
+
+Nginx y el backend se comunican por nombre de servicio Docker (`backend`), sin necesidad de exponer el puerto `3000` a la máquina host.
+
+### Levantar el stack completo
+
+```bash
+# Primera vez o tras cambios en la configuración de Nginx
+docker compose up --build
+
+# Levantar en background
+docker compose up -d
+
+# Ver logs del reverse proxy
+docker compose logs -f reverse-proxy-backend
+
+# Bajar todos los contenedores
+docker compose down
+```
+
+> La configuración de Nginx se monta desde `./reverse-proxy/nginx.conf` mediante un bind mount, por lo que cualquier cambio en ese archivo requiere reiniciar el contenedor (`docker compose restart reverse-proxy-backend`).
+
+---
+
 ## Swagger
 
 La documentación interactiva de la API está disponible en:
 
 ```
-http://localhost:3000/docs
+http://localhost/docs
 ```
+
+> Con el reverse proxy activo, accede a través del puerto `80` (sin especificar puerto). La URL directa al backend `http://localhost:3000/docs` también funciona si el puerto está expuesto, pero se recomienda usar la ruta pública.
 
 Incluye todos los endpoints con sus parámetros, cuerpos de request y respuestas. Para endpoints protegidos con `@Auth()`, haz clic en **Authorize** e ingresa el token JWT con el formato:
 
