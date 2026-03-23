@@ -168,8 +168,10 @@ Todos los servicios comparten la red Docker interna `network` (bridge). El front
 Llena la base de datos con datos iniciales: **2 usuarios** y **200 libros**.
 
 ```bash
-docker compose exec bookstore-backend-1 pnpm run seed
+docker compose exec backend pnpm run seed
 ```
+
+> **Importante:** usa el nombre del **servicio** (`backend`), no el nombre del contenedor (`bookstore-backend-1`). El comando `docker compose exec` trabaja con nombres de servicio definidos en `compose.yml`.
 
 ### Usuarios creados
 
