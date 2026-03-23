@@ -10,6 +10,7 @@ export function buildZodSchema(fields: FormFieldConfig[]): z.ZodObject<Record<st
 
     switch (field.type) {
       case 'text':
+      case 'password':
       case 'textarea': {
         let s = z.string();
         if (field.required) {

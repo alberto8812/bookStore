@@ -16,7 +16,7 @@ export class AuthService implements IAuthUseCase {
     return this.authRepository.create(createUserDto);
   }
   login(loginUserDto: LoginUserDto): Promise<any> {
-    throw new Error('Method not implemented.');
+    return this.authRepository.login(loginUserDto);
   }
 
 }

@@ -1,6 +1,6 @@
 
 
-import { useState } from "react";
+import { use, useState } from "react";
 import {
   useQuery,
   useMutation,
@@ -24,9 +24,10 @@ interface PaginatedActions<T> {
   create: (data: Partial<T>) => Promise<T>;
   update: (id: string, data: Partial<T>) => Promise<T>;
   remove: (id: string) => Promise<void>;
+  login?: (data: Partial<T>) => Promise<T>;
 }
 
-export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>, params?: { id?: string }) {
+export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>, params?: { id?: string; disableQuery?: boolean }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [pagination, setPagination] = useState<CursorPaginationState>({
@@ -40,18 +41,34 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     toast.error(message);
   };
 
-  const { data, isLoading } = useQuery<T | PaginatedResponse<T>>({
-    queryKey: params?.id ? [queryKey, params.id] : [queryKey, pagination],
+  const isDetailView = params?.id !== undefined;
+  const isNewRecord = params?.id === 'new';
+  const disableQuery = params?.disableQuery ?? false;
+
+  const listQuery = useQuery<PaginatedResponse<T>>({
+    queryKey: [queryKey, pagination],
     queryFn: () =>
-      params?.id
-        ? params?.id == 'new' ? Promise.resolve({} as unknown as T) : actions.findById(params.id)
-        : actions.findAllPaginated({
-          limit: pagination.limit,
-          afterCursor: pagination.startCursor,
-          beforeCursor: pagination.endCursor,
-        }),
+      actions.findAllPaginated({
+        limit: pagination.limit,
+        afterCursor: pagination.startCursor,
+        beforeCursor: pagination.endCursor,
+      }),
     placeholderData: keepPreviousData,
+    enabled: !isDetailView && !disableQuery,
   });
+
+  const detailQuery = useQuery<T>({
+    queryKey: [queryKey, params?.id],
+    queryFn: () => actions.findById(params!.id!),
+    placeholderData: keepPreviousData,
+    enabled: isDetailView && !isNewRecord && !disableQuery,
+  });
+
+  const data: T | PaginatedResponse<T> | undefined = isDetailView
+    ? (isNewRecord ? ({} as T) : detailQuery.data)
+    : listQuery.data;
+
+  const isLoading = listQuery.isLoading || detailQuery.isLoading;
 
 
   const createMutation = useMutation({
@@ -82,6 +99,15 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     onError: handleError,
   });
 
+  const loginMutation = useMutation({
+    mutationFn: (data: Partial<T>) => actions.login ? actions.login(data) : Promise.reject(new Error("Login no soportado")),
+    onSuccess: (data) => {
+      console.log("Login response:", data);
+      toast.success("Login exitoso.");
+    },
+    onError: handleError,
+  });
+
   return {
     data,
     isLoading,
@@ -90,5 +116,6 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     createMutation,
     updateMutation,
     deleteMutation,
+    loginMutation
   };
 }

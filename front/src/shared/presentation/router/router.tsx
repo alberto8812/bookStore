@@ -4,6 +4,7 @@ import { DashboardLayout } from "../layouts/DashBoardLayout";
 import { BookPage } from "@/modules/book/presentation/BookPage";
 import HomePage from "@/modules/homePage/presentation/Home";
 import { BookFromPage } from "@/modules/book/presentation/BookFromPage";
+import { LoginPage } from "@/modules/auth/presentation/page/LoginPage";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
             ],
           },
         ],
+      },
+      {
+        path: "login",
+        element: <LoginPage />,
       },
     ],
   },

@@ -33,5 +33,12 @@ export const generiActionQuery = <T>(basePath: string) => {
         await apiClient<void>(`${basePath}/${id}`, { method: "DELETE" });
     }
 
-    return { findAllPaginated, findById, create, update, remove };
+    async function login(data: Partial<T>): Promise<T> {
+        return apiClient<T>(`${basePath}/login`, {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    return { findAllPaginated, findById, create, update, remove, login };
 }

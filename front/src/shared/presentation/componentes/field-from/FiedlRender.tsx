@@ -46,11 +46,18 @@ export const FieldRenderer = ({
           )}
           <FormControl>
             {fieldConfig.type === "text" ||
+            fieldConfig.type === "password" ||
             fieldConfig.type === "date" ||
             fieldConfig.type === "uuid" ? (
               <Input
                 placeholder={fieldConfig.placeholder ?? ""}
-                type={fieldConfig.type === "date" ? "date" : "text"}
+                type={
+                  fieldConfig.type === "date"
+                    ? "date"
+                    : fieldConfig.type === "password"
+                    ? "password"
+                    : "text"
+                }
                 disabled={isLoading}
                 className="h-9"
                 {...field}

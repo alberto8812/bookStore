@@ -4,7 +4,7 @@ import type { AutocompleteConfig } from "./autocomplete.types";
 export interface FormFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'select' | 'boolean' | 'textarea' | 'date' | 'uuid' | 'autocomplete' | 'checkbox' | 'switch' | 'datetime-local';
+  type: 'text' | 'password' | 'number' | 'select' | 'boolean' | 'textarea' | 'date' | 'uuid' | 'autocomplete' | 'checkbox' | 'switch' | 'datetime-local';
   required?: boolean;
   maxLength?: number;
   min?: number;
