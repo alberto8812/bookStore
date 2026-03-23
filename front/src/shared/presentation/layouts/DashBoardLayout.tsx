@@ -34,10 +34,10 @@ export const DashboardLayout = () => {
       <SidebarProvider>
         <AppSidebar config={sidebarConfig} />
 
-        <SidebarInset className="min-w-0">
+        <SidebarInset className="min-w-0 h-svh overflow-hidden flex flex-col">
           {/* Mobile-only top bar */}
           <header
-            className="flex items-center gap-3 px-4 h-14 md:hidden"
+            className="shrink-0 flex items-center gap-3 px-4 h-14 md:hidden"
             style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}
           >
             <SidebarTrigger
@@ -51,9 +51,9 @@ export const DashboardLayout = () => {
             </span>
           </header>
 
-          <main className="flex-1">
+          <div className="flex-1 min-h-0 flex flex-col">
             <Outlet />
-          </main>
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </ErrorBoundary>
