@@ -40,7 +40,10 @@ export const BookForm = ({
   const { watch, ...form } = useForm({
     resolver: zodResolver(schema),
     defaultValues: computedDefaults,
+    mode: "onChange",
   });
+
+  const isValid = form.formState.isValid;
 
   return (
     <Form {...form} watch={watch}>
@@ -59,7 +62,7 @@ export const BookForm = ({
         ))}
         <Show when={authstatus === "authenticated"} fallback={undefined}>
           <div className="col-span-2 flex justify-end pt-2">
-            <Button type="submit" disabled={isloading}>
+            <Button type="submit" disabled={isloading || !isValid}>
               {isloading
                 ? "Guardando..."
                 : id
