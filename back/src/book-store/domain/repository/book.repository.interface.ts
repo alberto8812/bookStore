@@ -4,7 +4,7 @@ import { IPaginatedResult } from "src/shared/interfaces/pagination.interface";
 
 
 export interface IBookRepository {
-    create(dto: CreateBookStore): Promise<{ message: string }>;
+    create(dto: CreateBookStore, userId: string): Promise<{ message: string }>;
     findAll(
         paginationDto: PaginationDto,
     ): Promise<IPaginatedResult<BookModel>>;

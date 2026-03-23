@@ -1,5 +1,5 @@
 export interface AuthRepositoryModel {
-    id: number;
+    id: string;
     email: string;
     password: string;
     name: string;

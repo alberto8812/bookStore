@@ -17,8 +17,8 @@ export class BookStoreusecaseService implements IBookUseCase {
   ) {
 
   }
-  create(dto: CreateBookStoreDto): Promise<{ message: string; }> {
-    return this.bookRepository.create(dto);
+  create(dto: CreateBookStoreDto, userId: string): Promise<{ message: string; }> {
+    return this.bookRepository.create(dto, userId);
   }
   async findAll(paginationDto: PaginationDto): Promise<IPaginatedResult<BookModel>> {
     const cached = await this.cacheService.get<BookModel[]>(`${BOOK_CACHE_KEYS.FIND_ALL}_${JSON.stringify(paginationDto)}`);

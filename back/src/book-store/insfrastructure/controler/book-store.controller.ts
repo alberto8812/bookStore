@@ -5,6 +5,8 @@ import { Endpoint } from 'src/shared/decorator/endpoint.decorator';
 import { PaginationDto } from 'src/shared/dto/pagination.dto';
 import { Auth } from 'src/auth/insfrastructure/decorator/auth.decorator';
 import { BOOK_USE_CASE, IBookUseCase } from 'src/book-store/aplication/interfaces/book-use-case.interface';
+import { GetUser } from 'src/auth/insfrastructure/decorator/get-user.decorator';
+import { AuthRepositoryModel } from 'src/auth/domain/model/auth-repository.model';
 
 @Controller('book-store')
 export class BookStoreController {
@@ -19,8 +21,10 @@ export class BookStoreController {
     route: '',
     responses: [{ status: 201, description: 'The book has been successfully created.', type: Object }],
   })
-  create(@Body() createBookStoreDto: CreateBookStoreDto) {
-    return this.bookStoreService.create(createBookStoreDto);
+  create(@Body() createBookStoreDto: CreateBookStoreDto, @GetUser() user: AuthRepositoryModel) {
+    const userId = user.id;
+    console.log('Creating book with data:', createBookStoreDto, 'for user ID:', userId);
+    return this.bookStoreService.create(createBookStoreDto, userId);
   }
 
   @Endpoint({

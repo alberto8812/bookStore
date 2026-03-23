@@ -123,7 +123,7 @@ export class PrismaBookRepository implements IBookRepository {
 
         throw new Error("Method not implemented.");
     }
-    async create(dto: CreateBookStore): Promise<{ message: string; }> {
+    async create(dto: CreateBookStore, userId: string): Promise<{ message: string; }> {
         try {
             // 1 valida si el libro ya existe
             const exist = await this.findbyTitle(dto.title);
@@ -136,7 +136,11 @@ export class PrismaBookRepository implements IBookRepository {
             // 2 si no existe lo crea
 
             const createdBook = await this.prisma.book.create({
-                data: newBook
+                data: {
+                    ...newBook,
+                    created_by_id: userId,
+                }
+
             });
             return {
                 message: `Book with id ${createdBook.id} created successfully`
@@ -192,6 +196,8 @@ export class PrismaBookRepository implements IBookRepository {
                     autor: book.author,
                     description: book.description,
                     price: book.price,
+                    published_at: book.published_at,
+                    created_by_id: book.created_by_id ?? '',
                     status: book.status == 'available' ? StatusBook.AVAILABLE : StatusBook.RESERVED
 
                 }
@@ -221,6 +227,7 @@ export class PrismaBookRepository implements IBookRepository {
             author: book.autor,
             description: book.description,
             price: book.price,
+            published_at: book.published_at,
             status: book.status === StatusBook.AVAILABLE ? 'available' as const : 'reserved' as const,
         };
     }
@@ -273,6 +280,8 @@ export class PrismaBookRepository implements IBookRepository {
             autor: record.author,
             description: record.description,
             price: record.price,
+            published_at: record.published_at,
+            created_by_id: record.created_by_id ?? '',
             status: record.status === 'available' ? StatusBook.AVAILABLE : StatusBook.RESERVED,
         };
     }

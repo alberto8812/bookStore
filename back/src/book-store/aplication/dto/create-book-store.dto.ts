@@ -1,7 +1,7 @@
-import { IsEnum, IsString } from "class-validator";
+import { IsEnum, IsString, Min } from "class-validator";
 import { StatusBook } from "src/book-store/domain/model/book.model";
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateBookStoreDto {
 
@@ -16,15 +16,21 @@ export class CreateBookStoreDto {
     )
     autor: string;
     @ApiProperty({ example: 19.99, description: 'price of the book' })
-    @IsString(
-        { message: 'The price must be a string' }
-    )
+    @Min(0, { message: 'The price must be a positive number' })
     price: number;
+
     @ApiProperty({ example: 'A classic novel set in the 1920s...', description: 'description of the book' })
     @IsString(
         { message: 'The description must be a string' }
     )
     description: string;
+
+    @ApiProperty({ example: '2023-01-01T00:00:00Z', description: 'published date of the book' })
+    @IsString(
+        { message: 'The published_at must be a string in ISO format' }
+    )
+
+    published_at: Date;
 
     @ApiProperty({ example: 'available', description: 'status of the book' })
     @IsEnum(StatusBook, { message: 'The status must be either "available" or "reserved"' })
