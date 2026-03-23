@@ -15,6 +15,7 @@ export interface FormFieldConfig {
   pattern?: { regex: string; message: string };
   hidden?: boolean;
   gridCols?: 1 | 2 | 3 | 4;
+  colSpan?: number;
   autocompleteConfig?: AutocompleteConfig;
 }
 
