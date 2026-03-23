@@ -11,7 +11,7 @@ export const bookFormConfig: FormConfig = {
         {
             name: "status", label: "Estado", type: "select", required: true, maxLength: 50, placeholder: "Disponible", colSpan: 1, options: [
                 { label: "Disponible", value: "available" },
-                { label: "No Disponible", value: "unavailable" }
+                { label: "No Disponible", value: "reserved" }
             ]
         },
     ],

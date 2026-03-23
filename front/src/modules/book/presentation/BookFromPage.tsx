@@ -14,6 +14,7 @@ export const BookFromPage = () => {
 
   const handleSubmit = (formData: CreateBookDTO) => {
     if (id === "new") {
+      //si es excito que navegue a la pagina home
       createMutation.mutate(formData);
     } else {
       updateMutation.mutate({ id: id!, data: formData });
@@ -21,7 +22,8 @@ export const BookFromPage = () => {
   };
 
   return (
-    <div className="flex flex-1 min-h-0 flex-col p-6 gap-0 max-w-2xl">
+    <div className="flex flex-1 min-h-0 flex-col overflow-y-auto">
+    <div className="p-6 flex flex-col gap-0 max-w-2xl w-full">
       <div className="shrink-0 flex flex-col gap-1 pb-6">
         <h1 className="text-2xl font-semibold tracking-tight">
           {id ? "Editar Libro" : "Crear Libro"}
@@ -45,6 +47,7 @@ export const BookFromPage = () => {
           />
         </Show>
       </div>
+    </div>
     </div>
   );
 };

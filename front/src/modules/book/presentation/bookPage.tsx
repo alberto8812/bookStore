@@ -1,5 +1,5 @@
 import { useBook } from "./hook/use-book";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PageHeader } from "@/shared/presentation/componentes/ui/PageHeader";
 import type { Book } from "../domain/entity/book.entity";
 import { Filter, Pencil, Plus, Trash2 } from "lucide-react";
@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/shared/presentation/store/auth.store";
 import { FilterPanel } from "@/shared/presentation/componentes/filters/FilterPanel";
 import { BOOK_FILTER_FIELDS } from "../domain/base/filter/book-filter.base";
+import { ConfirmDeleteModal } from "@/shared/presentation/componentes/modals/confirDeleteModal";
 
 export const BookPage = () => {
   const { authstatus } = useAuthStore();
@@ -24,11 +25,13 @@ export const BookPage = () => {
     applyFilters,
     resetFilters,
     activeFilters,
+    deleteMutation,
   } = useBook();
+  const selectId = useRef<string | null>(null);
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState({
     importOpen: false,
-    editOpen: false,
+    isDelete: false,
     showFilters: false,
   });
 
@@ -79,7 +82,7 @@ export const BookPage = () => {
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-destructive"
-              onClick={() => handleDelete(row.original.id)}
+              onClick={() => handleDeleteModal(row.original.id)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -97,8 +100,20 @@ export const BookPage = () => {
     navigate(`/dashboard/books/${item.id}`);
   };
 
-  const handleDelete = (id: string) => {
-    console.log("Eliminar item con id:", id);
+  const handleDeleteModal = (id: string) => {
+    selectId.current = id;
+    setDialogOpen((prev) => ({ ...prev, isDelete: true }));
+  };
+
+  const handleDelete = () => {
+    const id = selectId.current;
+    if (!id) return;
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        setDialogOpen((prev) => ({ ...prev, isDelete: false }));
+        selectId.current = null;
+      },
+    });
   };
 
   const renderBookCard = (book: Book) => (
@@ -174,7 +189,7 @@ export const BookPage = () => {
             variant="ghost"
             size="icon"
             className="h-7 w-7 text-destructive"
-            onClick={() => handleDelete(book.id)}
+            onClick={() => handleDeleteModal(book.id)}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -226,6 +241,16 @@ export const BookPage = () => {
             renderCard={renderBookCard}
           />
         </Show>
+        <ConfirmDeleteModal
+          isOpen={dialogOpen.isDelete}
+          onClose={() =>
+            setDialogOpen((prev) => ({ ...prev, isDelete: false }))
+          }
+          onConfirm={handleDelete}
+          title="Eliminar libro"
+          message="¿Estás seguro de que deseas eliminar este libro? Esta acción no se puede deshacer."
+          isLoading={deleteMutation.isPending}
+        />
       </div>
     </div>
   );
