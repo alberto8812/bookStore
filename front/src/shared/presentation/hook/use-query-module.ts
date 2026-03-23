@@ -44,7 +44,7 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     queryKey: params?.id ? [queryKey, params.id] : [queryKey, pagination],
     queryFn: () =>
       params?.id
-        ? actions.findById(params.id)
+        ? params?.id == 'new' ? Promise.resolve({} as unknown as T) : actions.findById(params.id)
         : actions.findAllPaginated({
           limit: pagination.limit,
           afterCursor: pagination.startCursor,

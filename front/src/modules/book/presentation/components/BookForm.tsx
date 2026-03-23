@@ -51,8 +51,13 @@ export const BookForm = ({
         ))}
         <div className="col-span-2 flex justify-end pt-2">
           <Button type="submit" disabled={isloading}>
-            {isloading ? "Guardando..." : id ? "Guardar cambios" : "Crear libro"}
+            {isloading
+              ? "Guardando..."
+              : id
+                ? "Guardar cambios"
+                : "Crear libro"}
           </Button>
+          <Button disabled={isloading}>Cancelar</Button>
         </div>
       </form>
     </Form>

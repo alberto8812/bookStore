@@ -5,6 +5,8 @@ import { useBook } from "./hook/use-book";
 import { Show } from "@/shared/presentation/componentes/ui/Show.component";
 import { BookForm } from "./components/BookForm";
 import { BookFormSkeleton } from "./components/BookFormSkeleton";
+import { initialFormValues } from "../domain/base/forms/initial-from-values.base";
+import type { Book } from "../domain/entity/book.entity";
 
 export const BookFromPage = () => {
   const { id } = useParams();
@@ -22,20 +24,20 @@ export const BookFromPage = () => {
           {id ? "Editar Libro" : "Crear Libro"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {id ? "Modifica los datos del libro" : "Rellena el formulario para crear un nuevo libro"}
+          {id
+            ? "Modifica los datos del libro"
+            : "Rellena el formulario para crear un nuevo libro"}
         </p>
       </div>
+
       <div className="rounded-xl border bg-card shadow-sm p-6">
-        <Show
-          when={!id || !isLoading}
-          fallback={<BookFormSkeleton />}
-        >
+        <Show when={!id || !isLoading} fallback={<BookFormSkeleton />}>
           <BookForm
             isloading={isLoading}
             handleSubmit={handleSubmit}
             allFields={bookFormConfig.fields}
             schema={buildZodSchema(bookFormConfig.fields)}
-            defaultValues={data as any}
+            defaultValues={id === "new" ? initialFormValues : (data as Book)}
             id={id}
           />
         </Show>
