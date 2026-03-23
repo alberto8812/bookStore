@@ -17,7 +17,8 @@ export class BookStoreusecaseService implements IBookUseCase {
   ) {
 
   }
-  create(dto: CreateBookStoreDto, userId: string): Promise<{ message: string; }> {
+  async create(dto: CreateBookStoreDto, userId: string): Promise<{ message: string; }> {
+    await this.cacheService.deleteByPattern(`${BOOK_CACHE_KEYS.PATTERN_ALL}`);
     return this.bookRepository.create(dto, userId);
   }
   async findAll(paginationDto: PaginationDto): Promise<IPaginatedResult<BookModel>> {
@@ -33,7 +34,7 @@ export class BookStoreusecaseService implements IBookUseCase {
     return this.bookRepository.findOne(id);
   }
   async update(id: string, dto: UpdateBookStoreDto): Promise<{ message: string; }> {
-    //validar que el libro exista antes de actualizarlo
+
     const book = await this.bookRepository.findOne(id);
     if (!book) {
       throw new NotFoundException(`Character with id ${id} not found`);
