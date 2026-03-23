@@ -11,11 +11,26 @@ import { Badge } from "@/components/ui/badge";
 import { columnsBook } from "./components/columns-Book";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/shared/presentation/store/auth.store";
+import { FilterPanel } from "@/shared/presentation/componentes/filters/FilterPanel";
+import type { FilterFieldConfig } from "@/shared/presentation/componentes/filters/filter-field.types";
+
+const BOOK_FILTER_FIELDS: FilterFieldConfig[] = [
+  { key: 'title', label: 'Título', type: 'text', placeholder: 'Buscar por título...' },
+  { key: 'autor', label: 'Autor', type: 'text', placeholder: 'Buscar por autor...' },
+  {
+    key: 'status', label: 'Estado', type: 'select', options: [
+      { value: 'available', label: 'Disponible' },
+      { value: 'unavailable', label: 'No disponible' },
+    ]
+  },
+  { key: 'published_at', label: 'Publicación', type: 'dateRange' },
+];
 
 export const BookPage = () => {
   const { authstatus } = useAuthStore();
-  const { listData, isLoading, setPagination, pagination } = useBook();
+  const { listData, isLoading, setPagination, pagination, applyFilters, resetFilters, activeFilters } = useBook();
   const navigate = useNavigate();
+  const [showFilters, setShowFilters] = useState(false);
   const [dialogOpen, setDialogOpen] = useState({
     importOpen: false,
     editOpen: false,
@@ -25,9 +40,9 @@ export const BookPage = () => {
   const countryHeader = {
     filters: [
       {
-        title: "Filtros",
+        title: activeFilters.length > 0 ? `Filtros (${activeFilters.length})` : "Filtros",
         icon: <Filter className="mr-1.5 h-3.5 w-3.5" />,
-        onClick: () => {},
+        onClick: () => setShowFilters(prev => !prev),
       },
     ],
     import: [
@@ -182,6 +197,17 @@ export const BookPage = () => {
       <div className="shrink-0 pb-3">
         <PageHeader pageHeader={countryHeader} />
       </div>
+
+      {showFilters && (
+        <div className="shrink-0 pb-3">
+          <FilterPanel
+            fields={BOOK_FILTER_FIELDS}
+            onApply={(filters) => applyFilters(filters)}
+            onReset={() => { resetFilters(); }}
+            activeFilterCount={activeFilters.length}
+          />
+        </div>
+      )}
 
       <div className="flex-1 min-h-0 flex flex-col">
         <Show

@@ -10,6 +10,7 @@ import {
 
 import type { PaginatedResponse } from "@/shared/domain/base/base-entity.types";
 import type { CursorPaginationParams } from "@/shared/domain/base/base-repository.interface";
+import type { FilterDto } from "@/shared/aplication/dtos/filter.dto";
 import { useToast } from "./use-toast";
 import { useAuthStore } from "../store/auth.store";
 import type { LoginUser } from "@/modules/auth/domain/entity/auth.entity";
@@ -37,6 +38,14 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     startCursor: null,
     endCursor: null,
   });
+  const [activeFilters, setActiveFilters] = useState<FilterDto[]>([]);
+
+  const applyFilters = (filters: FilterDto[]) => {
+    setActiveFilters(filters);
+    setPagination({ limit: pagination.limit, startCursor: null, endCursor: null });
+  };
+
+  const resetFilters = () => applyFilters([]);
 
   const handleError = (error: unknown) => {
     const message = error instanceof Error ? error.message : "Error desconocido";
@@ -48,12 +57,13 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
   const disableQuery = params?.disableQuery ?? false;
 
   const listQuery = useQuery<PaginatedResponse<T>>({
-    queryKey: [queryKey, pagination],
+    queryKey: [queryKey, pagination, activeFilters],
     queryFn: () =>
       actions.findAllPaginated({
         limit: pagination.limit,
         afterCursor: pagination.startCursor,
         beforeCursor: pagination.endCursor,
+        filters: activeFilters.length > 0 ? activeFilters : undefined,
       }),
     placeholderData: keepPreviousData,
     enabled: !isDetailView && !disableQuery,
@@ -124,6 +134,9 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     isLoading,
     pagination,
     setPagination,
+    activeFilters,
+    applyFilters,
+    resetFilters,
     createMutation,
     updateMutation,
     deleteMutation,
