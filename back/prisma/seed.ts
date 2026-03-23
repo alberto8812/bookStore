@@ -3,6 +3,7 @@ import { PrismaClient } from '../generated/prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
+import Redis from 'ioredis';
 
 const BOOKS_DATA = [
     { title: 'El Quijote', author: 'Miguel de Cervantes', description: 'La historia del ingenioso hidalgo Don Quijote de la Mancha.', price: 12.99 },
@@ -223,6 +224,15 @@ async function main() {
 
     await prisma.book.createMany({ data: booksData });
     console.log(`✅ 200 libros creados`);
+
+    // Limpiar caché de Redis
+    const redis = new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT) || 6379,
+    });
+    await redis.flushall();
+    console.log('Redis cache cleared');
+    await redis.quit();
 
     console.log('🎉 Seed completado');
 
