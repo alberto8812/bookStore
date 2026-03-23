@@ -6,4 +6,7 @@ export interface AuthRepositoryModel {
 }
 
 export type CreateAuthModel = Omit<AuthRepositoryModel, 'id'>;
+export type AuthWithoutPassword = Omit<AuthRepositoryModel, 'password'>;
+
+export type authLoginModel = Omit<AuthRepositoryModel, 'name' | 'id'>;
 

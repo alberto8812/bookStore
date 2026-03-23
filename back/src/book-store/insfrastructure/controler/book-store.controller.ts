@@ -23,7 +23,6 @@ export class BookStoreController {
   })
   create(@Body() createBookStoreDto: CreateBookStoreDto, @GetUser() user: AuthRepositoryModel) {
     const userId = user.id;
-    console.log('Creating book with data:', createBookStoreDto, 'for user ID:', userId);
     return this.bookStoreService.create(createBookStoreDto, userId);
   }
 
