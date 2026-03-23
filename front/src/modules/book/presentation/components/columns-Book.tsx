@@ -6,6 +6,7 @@ export const columnsBook: ColumnDef<Book>[] = [
   {
     accessorKey: "id",
     header: "ID",
+    size: 110,
     cell: ({ row }) => (
       <span
         className="font-mono text-[11px] tracking-tight"
@@ -18,6 +19,7 @@ export const columnsBook: ColumnDef<Book>[] = [
   {
     accessorKey: "title",
     header: "Título",
+    size: 200,
     cell: ({ row }) => (
       <span
         className="font-medium text-sm max-w-[180px] block truncate"
@@ -31,6 +33,7 @@ export const columnsBook: ColumnDef<Book>[] = [
   {
     accessorKey: "author",
     header: "Autor",
+    size: 160,
     cell: ({ row }) => (
       <span
         className="text-sm"
@@ -43,6 +46,7 @@ export const columnsBook: ColumnDef<Book>[] = [
   {
     accessorKey: "description",
     header: "Descripción",
+    size: 300,
     cell: ({ row }) => (
       <span
         className="text-sm max-w-[280px] block truncate"
@@ -56,6 +60,7 @@ export const columnsBook: ColumnDef<Book>[] = [
   {
     accessorKey: "price",
     header: "Precio",
+    size: 110,
     cell: ({ row }) => (
       <span
         className="font-semibold text-sm tabular-nums"
@@ -68,6 +73,7 @@ export const columnsBook: ColumnDef<Book>[] = [
   {
     accessorKey: "status",
     header: "Estado",
+    size: 140,
     cell: ({ row }) => {
       const status = row.getValue("status") as "available" | "unavailable";
       return (

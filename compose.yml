@@ -1,5 +1,6 @@
 include:
   - path: ./back/compose.yml
+  - path: ./front/compose.yml
 
 services:
   reverse-proxy-backend:

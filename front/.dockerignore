@@ -1,0 +1,16 @@
+node_modules
+dist
+.git
+.gitignore
+.DS_Store
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.env
+.env.*
+!.env.example
+.claude
+.cursor
+.agents
+coverage
+*.tsbuildinfo

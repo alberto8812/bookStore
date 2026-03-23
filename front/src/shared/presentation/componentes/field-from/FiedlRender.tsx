@@ -124,7 +124,7 @@ export const FieldRenderer = ({
               />
             )}
           </FormControl>
-          <FormMessage />
+          <FormMessage className="text-[11px] font-normal mt-0.5" />
         </FormItem>
       )}
     />

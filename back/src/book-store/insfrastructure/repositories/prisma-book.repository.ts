@@ -67,6 +67,8 @@ export class PrismaBookRepository implements IBookRepository {
         if (hasFilterConditions) conditions.push(filterConditions);
         if (hasSearchCondition) conditions.push(searchCondition);
 
+        //adicionar que me traiga solo los libros que tengan deleted_at en null
+        conditions.push({ deleted_at: null });
         const finalWhere: Prisma.bookWhereInput | undefined =
             conditions.length > 0 ? { AND: conditions } : undefined;
 
@@ -123,7 +125,7 @@ export class PrismaBookRepository implements IBookRepository {
 
         throw new Error("Method not implemented.");
     }
-    async create(dto: CreateBookStore): Promise<{ message: string; }> {
+    async create(dto: CreateBookStore, userId: string): Promise<{ message: string; }> {
         try {
             // 1 valida si el libro ya existe
             const exist = await this.findbyTitle(dto.title);
@@ -136,7 +138,11 @@ export class PrismaBookRepository implements IBookRepository {
             // 2 si no existe lo crea
 
             const createdBook = await this.prisma.book.create({
-                data: newBook
+                data: {
+                    ...newBook,
+                    created_by_id: userId,
+                }
+
             });
             return {
                 message: `Book with id ${createdBook.id} created successfully`
@@ -145,8 +151,26 @@ export class PrismaBookRepository implements IBookRepository {
             this.handleDBEceptions(error);
         }
     }
-    update(id: string, dto: UpdateBookStore): Promise<{ message: string; }> {
-        throw new Error("Method not implemented.");
+    async update(id: string, dto: UpdateBookStore): Promise<{ message: string; }> {
+
+        try {
+            await this.prisma.book.update({
+                where: { id },
+                data: {
+                    title: dto.title,
+                    author: dto.autor,
+                    description: dto.description,
+                    price: dto.price,
+                    published_at: dto.published_at,
+                    status: dto.status === StatusBook.AVAILABLE ? 'available' as const : 'reserved' as const,
+                }
+            });
+            return {
+                message: `Book with id ${id} updated successfully`
+            };
+        } catch (error) {
+            this.handleDBEceptions(error);
+        }
     }
 
 
@@ -165,8 +189,22 @@ export class PrismaBookRepository implements IBookRepository {
         }
     }
 
-    remove(id: string): Promise<any> {
-        throw new Error("Method not implemented.");
+    async remove(id: string): Promise<{ message: string; }> {
+        try {
+            //actualizar el deleted_at con fecha actual
+            await this.prisma.book.update({
+                where: { id },
+                data: {
+                    deleted_at: new Date(),
+                },
+            });
+            return {
+                message: `Book with id ${id} deleted successfully`
+            };
+        } catch (error) {
+            this.logger.error(`Error deleting book with id ${id}`, error);
+            this.handleDBEceptions(error);
+        }
     }
 
     private async getCursorDate(cursor: string): Promise<Date> {
@@ -182,7 +220,8 @@ export class PrismaBookRepository implements IBookRepository {
 
             const book = await this.prisma.book.findFirst({
                 where: {
-                    title
+                    title,
+                    deleted_at: null,
                 }
             })
             if (book) {
@@ -192,6 +231,8 @@ export class PrismaBookRepository implements IBookRepository {
                     autor: book.author,
                     description: book.description,
                     price: book.price,
+                    published_at: book.published_at,
+                    created_by_id: book.created_by_id ?? '',
                     status: book.status == 'available' ? StatusBook.AVAILABLE : StatusBook.RESERVED
 
                 }
@@ -204,7 +245,6 @@ export class PrismaBookRepository implements IBookRepository {
 
     }
     private handleDBEceptions(error: any): never {
-        console.log(error)
         if (error.code === 11000) {
             throw new BadRequestException(error.errorResponse.errmsg);
         }
@@ -221,6 +261,7 @@ export class PrismaBookRepository implements IBookRepository {
             author: book.autor,
             description: book.description,
             price: book.price,
+            published_at: book.published_at,
             status: book.status === StatusBook.AVAILABLE ? 'available' as const : 'reserved' as const,
         };
     }
@@ -273,6 +314,8 @@ export class PrismaBookRepository implements IBookRepository {
             autor: record.author,
             description: record.description,
             price: record.price,
+            published_at: record.published_at,
+            created_by_id: record.created_by_id ?? '',
             status: record.status === 'available' ? StatusBook.AVAILABLE : StatusBook.RESERVED,
         };
     }

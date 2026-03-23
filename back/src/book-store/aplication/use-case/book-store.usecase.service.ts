@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBookStoreDto } from '../dto/create-book-store.dto';
 import { UpdateBookStoreDto } from '../dto/update-book-store.dto';
 import { IBookUseCase } from '../interfaces/book-use-case.interface';
@@ -17,8 +17,9 @@ export class BookStoreusecaseService implements IBookUseCase {
   ) {
 
   }
-  create(dto: CreateBookStoreDto): Promise<{ message: string; }> {
-    return this.bookRepository.create(dto);
+  async create(dto: CreateBookStoreDto, userId: string): Promise<{ message: string; }> {
+    await this.cacheService.deleteByPattern(`${BOOK_CACHE_KEYS.PATTERN_ALL}`);
+    return this.bookRepository.create(dto, userId);
   }
   async findAll(paginationDto: PaginationDto): Promise<IPaginatedResult<BookModel>> {
     const cached = await this.cacheService.get<BookModel[]>(`${BOOK_CACHE_KEYS.FIND_ALL}_${JSON.stringify(paginationDto)}`);
@@ -32,10 +33,21 @@ export class BookStoreusecaseService implements IBookUseCase {
   findOne(id: string): Promise<BookModel | null> {
     return this.bookRepository.findOne(id);
   }
-  update(id: string, dto: UpdateBookStoreDto): Promise<{ message: string; }> {
+  async update(id: string, dto: UpdateBookStoreDto): Promise<{ message: string; }> {
+
+    const book = await this.bookRepository.findOne(id);
+    if (!book) {
+      throw new NotFoundException(`Character with id ${id} not found`);
+    }
+    await this.cacheService.deleteByPattern(`${BOOK_CACHE_KEYS.PATTERN_ALL}`);
     return this.bookRepository.update(id, dto);
   }
-  remove(id: string): Promise<{ message: string; }> {
+  async remove(id: string): Promise<{ message: string; }> {
+    const book = await this.bookRepository.findOne(id);
+    if (!book) {
+      throw new NotFoundException(`Character with id ${id} not found`);
+    }
+    await this.cacheService.deleteByPattern(`${BOOK_CACHE_KEYS.PATTERN_ALL}`);
     return this.bookRepository.remove(id);
   }
 

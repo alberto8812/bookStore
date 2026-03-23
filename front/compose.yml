@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    volumes:
+      - .:/app
+      - /app/node_modules   # anonymous volume — preserves container's node_modules
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    driver: bridge

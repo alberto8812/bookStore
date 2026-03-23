@@ -1,10 +1,13 @@
 import type { PaginatedResponse } from "./base-entity.types";
+import type { FilterDto } from "@/shared/aplication/dtos/filter.dto";
 
 
 export interface CursorPaginationParams {
   limit: number;
   afterCursor?: string | null;
   beforeCursor?: string | null;
+  search?: string;
+  filters?: FilterDto[];
 }
 
 export interface BasePaginatedRepository<T> {

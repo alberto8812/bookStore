@@ -120,7 +120,12 @@ export function MainDataTable<TData, TValue>({
             borderBottom: "1px solid rgba(43,191,176,0.2)",
           }}
         >
-          <table className="w-full caption-bottom text-sm">
+          <table className="w-full caption-bottom text-sm" style={{ tableLayout: "fixed" }}>
+            <colgroup>
+              {table.getHeaderGroups()[0]?.headers.map((header) => (
+                <col key={header.id} style={{ width: header.getSize() }} />
+              ))}
+            </colgroup>
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
@@ -150,7 +155,12 @@ export function MainDataTable<TData, TValue>({
           className="flex-1 overflow-auto"
           onScroll={syncHeaderScroll}
         >
-          <table className="w-full caption-bottom text-sm">
+          <table className="w-full caption-bottom text-sm" style={{ tableLayout: "fixed" }}>
+            <colgroup>
+              {table.getHeaderGroups()[0]?.headers.map((header) => (
+                <col key={header.id} style={{ width: header.getSize() }} />
+              ))}
+            </colgroup>
             <tbody>
               {hasRows
                 ? table.getRowModel().rows.map((row) => (

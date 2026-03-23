@@ -30,19 +30,13 @@ const instance = axios.create({
 
 // ─── Interceptor REQUEST — adjunta token en todas las consultas ───────────────
 instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    // TODO: reemplaza _token por Zustand cuando implementes auth:
-    // const token = useAuthStore.getState().token
 
-    // const session = await auth();
-    // if (session?.error === "RefreshTokenError") throw new AuthenticationError();
-    // const token = session?.access_token;
 
     const token = useAuthStore.getState().token;
     if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
     }
 
-    console.log(`[API Client] Calling: ${config.baseURL}${config.url}`);
     return config;
 });
 

@@ -1,10 +1,11 @@
-import { CreateAuthModel } from "src/auth/domain/model/auth-repository.model";
+import { authLoginModel, AuthRepositoryModel, AuthWithoutPassword, CreateAuthModel } from "src/auth/domain/model/auth-repository.model";
 import { IAuthRepository } from "src/auth/domain/repository/auth.repository.interface";
 import { PrismaService } from "src/shared/db/postgres/prisma-manager.service";
 import * as bcrypt from 'bcrypt';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { JwtPayload } from "src/auth/insfrastructure/interface/jwt.payload.interface";
+import { LoginUserDto } from "src/auth/aplication/dto/login-user.dto";
 
 @Injectable()
 export class PrismaAuthRepository implements IAuthRepository {
@@ -13,7 +14,7 @@ export class PrismaAuthRepository implements IAuthRepository {
         private readonly prisma: PrismaService,
         private readonly jwtService: JwtService
     ) { }
-    async create(createUserDto: CreateAuthModel): Promise<any> {
+    async create(createUserDto: CreateAuthModel): Promise<{ token: string, email: string, name: string }> {
         try {
             const { password, ...rest } = createUserDto;
 
@@ -43,7 +44,7 @@ export class PrismaAuthRepository implements IAuthRepository {
 
     }
 
-    async findByEmail(email: string): Promise<any> {
+    async findByEmail(email: string): Promise<AuthRepositoryModel | null> {
 
         try {
             const user = await this.prisma.auth.findUnique({
@@ -64,7 +65,7 @@ export class PrismaAuthRepository implements IAuthRepository {
     }
 
 
-    async login(loginUserDto: any): Promise<any> {
+    async login(loginUserDto: authLoginModel): Promise<{ token: string, user: AuthWithoutPassword }> {
         try {
             const { email, password } = loginUserDto;
             const user = await this.findByEmail(email);
@@ -77,8 +78,9 @@ export class PrismaAuthRepository implements IAuthRepository {
             }
             const payload: JwtPayload = { email: user.email, id: user.id };
             const token = this.GetJwtToken(payload);
+            const { password: _, ...userWithoutPassword } = user;
             return {
-                ...user,
+                user: userWithoutPassword,
                 token
             }
         } catch (error) {
@@ -95,7 +97,6 @@ export class PrismaAuthRepository implements IAuthRepository {
 
 
     private handleDBEceptions(error: any): never {
-        console.log(error)
         if (error.code === 11000) {
             throw new BadRequestException(error.errorResponse.errmsg);
         }

@@ -25,7 +25,6 @@ export const LoginForm = ({
   });
 
   const handleSubmit = (data: Record<string, unknown>) => {
-    console.log("login:", data);
     loginMutation.mutate(data);
   };
 

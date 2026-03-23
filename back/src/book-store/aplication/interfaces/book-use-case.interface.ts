@@ -6,7 +6,7 @@ import { BookModel } from 'src/book-store/domain/model/book.model';
 import { UpdateBookStoreDto } from '../dto/update-book-store.dto';
 
 export interface IBookUseCase {
-  create(dto: CreateBookStoreDto): Promise<{ message: string }>;
+  create(dto: CreateBookStoreDto, userId: string): Promise<{ message: string }>;
   findAll(
     paginationDto: PaginationDto,
   ): Promise<IPaginatedResult<BookModel>>;

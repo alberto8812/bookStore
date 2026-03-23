@@ -5,10 +5,11 @@ import { FieldRenderer } from "@/shared/presentation/componentes/field-from/Fied
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/shared/presentation/store/auth.store";
 import { Show } from "@/shared/presentation/componentes/ui/Show.component";
+import type { CreateBookDTO } from "../../domain/entity/book.entity";
 
 interface Props {
   isloading?: boolean;
-  handleSubmit: (formData: Record<string, unknown>) => void;
+  handleSubmit: (formData: CreateBookDTO) => void;
   allFields: any[];
   schema: any;
   defaultValues?: Record<string, unknown>;
@@ -26,16 +27,23 @@ export const BookForm = ({
   const { authstatus } = useAuthStore();
   const computedDefaults: Record<string, unknown> = {};
   for (const field of allFields) {
-    computedDefaults[field.name] =
+    let value =
       defaultValues?.[field.name] ??
       field.defaultValue ??
       (field.type === "boolean" ? false : "");
+    if (field.type === "date" && typeof value === "string" && value) {
+      value = value.split("T")[0];
+    }
+    computedDefaults[field.name] = value;
   }
 
   const { watch, ...form } = useForm({
     resolver: zodResolver(schema),
     defaultValues: computedDefaults,
+    mode: "onChange",
   });
+
+  const isValid = form.formState.isValid;
 
   return (
     <Form {...form} watch={watch}>
@@ -54,7 +62,7 @@ export const BookForm = ({
         ))}
         <Show when={authstatus === "authenticated"} fallback={undefined}>
           <div className="col-span-2 flex justify-end pt-2">
-            <Button type="submit" disabled={isloading}>
+            <Button type="submit" disabled={isloading || !isValid}>
               {isloading
                 ? "Guardando..."
                 : id
