@@ -12,6 +12,7 @@ import type { PaginatedResponse } from "@/shared/domain/base/base-entity.types";
 import type { CursorPaginationParams } from "@/shared/domain/base/base-repository.interface";
 import { useToast } from "./use-toast";
 import { useAuthStore } from "../store/auth.store";
+import type { LoginUser } from "@/modules/auth/domain/entity/auth.entity";
 
 interface CursorPaginationState {
   limit: number;
@@ -106,8 +107,8 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
   const loginMutation = useMutation({
     mutationFn: (data: Partial<T>) => actions.login ? actions.login(data) : Promise.reject(new Error("Login no soportado")),
     onSuccess: (data) => {
-      console.log("Login response:", data);
-      useAuthStore.getState().setLogin(data as any, (data as any).token);
+      const { user, token } = data as unknown as { user: LoginUser; token: string };
+      useAuthStore.getState().setLogin(user, token);
       toast.success("Login exitoso.");
     },
     onError: (error) => {

@@ -5,3 +5,6 @@ export interface AuthEntity {
     password: string;
     token: string;
 }
+
+
+export type LoginUser = Omit<AuthEntity, 'password' | 'token'>;

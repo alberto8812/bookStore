@@ -1,13 +1,13 @@
-import type { AuthEntity } from '@/modules/auth/domain/entity/auth.entity';
+import type { AuthEntity, LoginUser } from '@/modules/auth/domain/entity/auth.entity';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 type AuthState = {
-    user: AuthEntity | null;
+    user: LoginUser | null;
     token: string | null;
     authstatus: 'authenticated' | 'unauthenticated' | 'loading';
 
-    setLogin: (user: AuthEntity, token: string) => Promise<void>;
+    setLogin: (user: LoginUser, token: string) => Promise<void>;
     logout: () => void;
 
 }
@@ -19,7 +19,7 @@ export const useAuthStore = create<AuthState>()(
             token: null,
             authstatus: 'unauthenticated',
 
-            setLogin: async (user: AuthEntity, token: string) => {
+            setLogin: async (user: LoginUser, token: string) => {
                 set({ user, token, authstatus: 'authenticated' });
             },
             logout: () => set({ user: null, token: null, authstatus: 'unauthenticated' }),
