@@ -1,4 +1,5 @@
-import { PaginatedResponse } from "./base-entity.types";
+import type { PaginatedResponse } from "./base-entity.types";
+
 
 export interface CursorPaginationParams {
   limit: number;
