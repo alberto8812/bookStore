@@ -220,7 +220,8 @@ export class PrismaBookRepository implements IBookRepository {
 
             const book = await this.prisma.book.findFirst({
                 where: {
-                    title
+                    title,
+                    deleted_at: null,
                 }
             })
             if (book) {
