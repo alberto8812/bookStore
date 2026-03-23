@@ -6,15 +6,18 @@ import { Show } from "@/shared/presentation/componentes/ui/Show.component";
 import { BookForm } from "./components/BookForm";
 import { BookFormSkeleton } from "./components/BookFormSkeleton";
 import { initialFormValues } from "../domain/base/forms/initial-from-values.base";
-import type { Book } from "../domain/entity/book.entity";
+import type { Book, CreateBookDTO } from "../domain/entity/book.entity";
 
 export const BookFromPage = () => {
   const { id } = useParams();
-  const { data, isLoading, updateMutation } = useBook(id);
+  const { data, isLoading, updateMutation, createMutation } = useBook(id);
 
-  const handleSubmit = (formData: Record<string, unknown>) => {
-    const { ...restFormData } = formData;
-    updateMutation.mutate({ restFormData } as any);
+  const handleSubmit = (formData: CreateBookDTO) => {
+    if (id === "new") {
+      createMutation.mutate(formData);
+    } else {
+      updateMutation.mutate({ id: id!, data: formData });
+    }
   };
 
   return (

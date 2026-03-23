@@ -1,6 +1,6 @@
-import { IsEnum, IsString, Min } from "class-validator";
+import { IsDate, IsEnum, IsString, Min } from "class-validator";
 import { StatusBook } from "src/book-store/domain/model/book.model";
-
+import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateBookStoreDto {
@@ -25,11 +25,9 @@ export class CreateBookStoreDto {
     )
     description: string;
 
-    @ApiProperty({ example: '2023-01-01T00:00:00Z', description: 'published date of the book' })
-    @IsString(
-        { message: 'The published_at must be a string in ISO format' }
-    )
-
+    @ApiProperty({ example: '2025-07-22', description: 'Fecha de publicación (YYYY-MM-DD)' })
+    @IsDate({ message: 'published_at debe ser una fecha válida' })
+    @Transform(({ value }) => new Date(value))
     published_at: Date;
 
     @ApiProperty({ example: 'available', description: 'status of the book' })
