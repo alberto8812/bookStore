@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   flexRender,
@@ -6,14 +7,6 @@ import {
 } from "@tanstack/react-table";
 import { ChevronLeft, ChevronRight, Loader2, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -44,6 +37,16 @@ export function MainDataTable<TData, TValue>({
   paginationState,
   renderCard,
 }: DataTableProps<TData, TValue>) {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  // Sync horizontal scroll: body drives, header follows
+  const syncHeaderScroll = () => {
+    if (headerRef.current && bodyRef.current) {
+      headerRef.current.scrollLeft = bodyRef.current.scrollLeft;
+    }
+  };
+
   const table = useReactTable({
     data: data || [],
     columns,
@@ -87,39 +90,44 @@ export function MainDataTable<TData, TValue>({
   const hasRows = currentRows > 0;
 
   const emptyState = (
-    <div className="flex h-48 flex-col items-center justify-center text-center">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-        <Inbox className="h-5 w-5 text-muted-foreground" />
-      </div>
-      <p className="text-sm font-medium">Sin resultados</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">
-        No se encontraron registros
-      </p>
-    </div>
+    <tr>
+      <td colSpan={columns.length} className="h-48 p-0">
+        <div className="flex h-48 flex-col items-center justify-center text-center">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+            <Inbox className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <p className="text-sm font-medium">Sin resultados</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            No se encontraron registros
+          </p>
+        </div>
+      </td>
+    </tr>
   );
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border">
-      <div className="flex-1 overflow-auto">
-        {/* ── Desktop table view ── */}
-        <div className={renderCard ? "hidden md:block" : ""}>
-          <Table>
-            <TableHeader
-              className="sticky top-0 z-10"
-              style={{
-                backgroundColor: "var(--color-teal-soft)",
-                borderBottom: "1px solid rgba(43,191,176,0.2)",
-              }}
-            >
+
+      {/* ── Desktop layout ── */}
+      <div className={renderCard ? "hidden md:flex md:min-h-0 md:flex-1 md:flex-col" : "flex min-h-0 flex-1 flex-col"}>
+
+        {/* Fixed header — outside scroll container */}
+        <div
+          ref={headerRef}
+          className="shrink-0 overflow-hidden"
+          style={{
+            backgroundColor: "var(--color-teal-soft)",
+            borderBottom: "1px solid rgba(43,191,176,0.2)",
+          }}
+        >
+          <table className="w-full caption-bottom text-sm">
+            <thead>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className="hover:bg-transparent border-0"
-                >
+                <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead
+                    <th
                       key={header.id}
-                      className="h-9 text-[11px] font-semibold uppercase tracking-widest"
+                      className="h-9 px-4 text-left align-middle text-[11px] font-semibold uppercase tracking-widest whitespace-nowrap"
                       style={{ color: "var(--color-teal-dark)" }}
                     >
                       {header.isPlaceholder
@@ -128,51 +136,68 @@ export function MainDataTable<TData, TValue>({
                             header.column.columnDef.header,
                             header.getContext(),
                           )}
-                    </TableHead>
+                    </th>
                   ))}
-                </TableRow>
+                </tr>
               ))}
-            </TableHeader>
-            <TableBody>
-              {hasRows ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className="transition-colors duration-100 hover:bg-[var(--color-teal-soft)] border-b border-[rgba(0,0,0,0.05)]"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-2.5 text-sm">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={columns.length} className="h-48 p-0">
-                    {emptyState}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+            </thead>
+          </table>
         </div>
 
-        {/* ── Mobile card view ── */}
-        {renderCard && (
-          <div className="md:hidden p-3 flex flex-col gap-3">
-            {hasRows
-              ? table.getRowModel().rows.map((row) => (
-                  <div key={row.id}>{renderCard(row.original)}</div>
-                ))
-              : emptyState}
-          </div>
-        )}
+        {/* Scrollable body only */}
+        <div
+          ref={bodyRef}
+          className="flex-1 overflow-auto"
+          onScroll={syncHeaderScroll}
+        >
+          <table className="w-full caption-bottom text-sm">
+            <tbody>
+              {hasRows
+                ? table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="transition-colors duration-100 hover:bg-[var(--color-teal-soft)]"
+                      style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="px-4 py-2.5 align-middle text-sm"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                : emptyState}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* ── Mobile card view ── */}
+      {renderCard && (
+        <div className="md:hidden flex-1 overflow-auto p-3 flex flex-col gap-3">
+          {hasRows
+            ? table.getRowModel().rows.map((row) => (
+                <div key={row.id}>{renderCard(row.original)}</div>
+              ))
+            : (
+              <div className="flex h-48 flex-col items-center justify-center text-center">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                  <Inbox className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium">Sin resultados</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  No se encontraron registros
+                </p>
+              </div>
+            )}
+        </div>
+      )}
 
       {/* ── Pagination footer ── */}
       <div className="flex shrink-0 items-center justify-between border-t bg-muted/20 px-4 py-2.5">
