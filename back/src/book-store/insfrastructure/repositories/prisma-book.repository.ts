@@ -150,8 +150,19 @@ export class PrismaBookRepository implements IBookRepository {
     }
 
 
-    findOne(id: string): Promise<any> {
-        throw new Error("hoal mundo");
+    async findOne(id: string): Promise<BookModel> {
+        try {
+            const book = await this.prisma.book.findUnique({
+                where: { id },
+            });
+            if (!book) {
+                throw new BadRequestException(`Book with id ${id} not found`);
+            }
+            return this.mapToModel(book);
+        } catch (error) {
+            this.logger.error(`Error finding book with id ${id}`, error);
+            this.handleDBEceptions(error);
+        }
     }
 
     remove(id: string): Promise<any> {
