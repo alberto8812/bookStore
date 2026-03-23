@@ -3,6 +3,7 @@ import { Root } from "./Root";
 import { DashboardLayout } from "../layouts/DashBoardLayout";
 import { BookPage } from "@/modules/book/presentation/BookPage";
 import HomePage from "@/modules/homePage/presentation/Home";
+import { BookFromPage } from "@/modules/book/presentation/BookFromPage";
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +20,17 @@ export const router = createBrowserRouter([
           },
           {
             path: "books",
-            element: <BookPage />,
+
+            children: [
+              {
+                path: "", // /dashboard/books → lista
+                element: <BookPage />,
+              },
+              {
+                path: ":id",
+                element: <BookFromPage />,
+              },
+            ],
           },
         ],
       },

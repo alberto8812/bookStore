@@ -20,12 +20,13 @@ interface CursorPaginationState {
 
 interface PaginatedActions<T> {
   findAllPaginated: (params: CursorPaginationParams) => Promise<PaginatedResponse<T>>;
+  findById: (id: string) => Promise<T>;
   create: (data: Partial<T>) => Promise<T>;
   update: (id: string, data: Partial<T>) => Promise<T>;
   remove: (id: string) => Promise<void>;
 }
 
-export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>) {
+export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>, params?: { id?: string }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [pagination, setPagination] = useState<CursorPaginationState>({
@@ -39,16 +40,19 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     toast.error(message);
   };
 
-  const { data, isLoading } = useQuery({
-    queryKey: [queryKey, pagination],
+  const { data, isLoading } = useQuery<T | PaginatedResponse<T>>({
+    queryKey: params?.id ? [queryKey, params.id] : [queryKey, pagination],
     queryFn: () =>
-      actions.findAllPaginated({
-        limit: pagination.limit,
-        afterCursor: pagination.startCursor,
-        beforeCursor: pagination.endCursor,
-      }),
+      params?.id
+        ? actions.findById(params.id)
+        : actions.findAllPaginated({
+          limit: pagination.limit,
+          afterCursor: pagination.startCursor,
+          beforeCursor: pagination.endCursor,
+        }),
     placeholderData: keepPreviousData,
   });
+
 
   const createMutation = useMutation({
     mutationFn: (newData: Partial<T>) => actions.create(newData),

@@ -9,9 +9,11 @@ import { TableSkeleton } from "@/shared/presentation/componentes/tables/TableSke
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { columnsBook } from "./components/columns-Book";
+import { useNavigate } from "react-router-dom";
 
 export const BookPage = () => {
   const { data, isLoading, setPagination, pagination } = useBook();
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState({
     importOpen: false,
     editOpen: false,
@@ -64,13 +66,12 @@ export const BookPage = () => {
   ];
 
   const handleCreate = () => {
-    setEditingItem(null);
-    setDialogOpen((prev) => ({ ...prev, editOpen: true }));
+    //usar el raouter para  ir a la reuta books/new
+    navigate("/dashboard/books/new");
   };
 
   const handleEdit = (item: Book) => {
-    setEditingItem(item);
-    setDialogOpen((prev) => ({ ...prev, editOpen: true }));
+    navigate(`/dashboard/books/${item.id}`);
   };
 
   const handleDelete = (id: string) => {
@@ -119,7 +120,10 @@ export const BookPage = () => {
       </p>
 
       {/* Bottom row: id + price + actions */}
-      <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+      <div
+        className="flex items-center justify-between mt-3 pt-3"
+        style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}
+      >
         <div className="flex items-center gap-3">
           <span
             className="text-[11px] font-mono"
