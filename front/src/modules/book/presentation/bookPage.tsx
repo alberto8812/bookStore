@@ -46,6 +46,7 @@ export const BookPage = () => {
     {
       id: "actions",
       header: "Acciones",
+      size: 100,
       cell: ({ row }: { row: { original: Book } }) => (
         <div className="flex items-center gap-1">
           <Button
