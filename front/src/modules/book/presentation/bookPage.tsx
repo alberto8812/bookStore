@@ -12,37 +12,39 @@ import { columnsBook } from "./components/columns-Book";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/shared/presentation/store/auth.store";
 import { FilterPanel } from "@/shared/presentation/componentes/filters/FilterPanel";
-import type { FilterFieldConfig } from "@/shared/presentation/componentes/filters/filter-field.types";
-
-const BOOK_FILTER_FIELDS: FilterFieldConfig[] = [
-  { key: 'title', label: 'Título', type: 'text', placeholder: 'Buscar por título...' },
-  { key: 'autor', label: 'Autor', type: 'text', placeholder: 'Buscar por autor...' },
-  {
-    key: 'status', label: 'Estado', type: 'select', options: [
-      { value: 'available', label: 'Disponible' },
-      { value: 'unavailable', label: 'No disponible' },
-    ]
-  },
-  { key: 'published_at', label: 'Publicación', type: 'dateRange' },
-];
+import { BOOK_FILTER_FIELDS } from "../domain/base/filter/book-filter.base";
 
 export const BookPage = () => {
   const { authstatus } = useAuthStore();
-  const { listData, isLoading, setPagination, pagination, applyFilters, resetFilters, activeFilters } = useBook();
+  const {
+    listData,
+    isLoading,
+    setPagination,
+    pagination,
+    applyFilters,
+    resetFilters,
+    activeFilters,
+  } = useBook();
   const navigate = useNavigate();
-  const [showFilters, setShowFilters] = useState(false);
   const [dialogOpen, setDialogOpen] = useState({
     importOpen: false,
     editOpen: false,
+    showFilters: false,
   });
-  const [editingItem, setEditingItem] = useState<Book | null>(null);
 
   const countryHeader = {
     filters: [
       {
-        title: activeFilters.length > 0 ? `Filtros (${activeFilters.length})` : "Filtros",
+        title:
+          activeFilters.length > 0
+            ? `Filtros (${activeFilters.length})`
+            : "Filtros",
         icon: <Filter className="mr-1.5 h-3.5 w-3.5" />,
-        onClick: () => setShowFilters(prev => !prev),
+        onClick: () =>
+          setDialogOpen((prev) => ({
+            ...prev,
+            showFilters: !prev.showFilters,
+          })),
       },
     ],
     import: [
@@ -88,7 +90,6 @@ export const BookPage = () => {
   ];
 
   const handleCreate = () => {
-    //usar el raouter para  ir a la reuta books/new
     navigate("/dashboard/books/new");
   };
 
@@ -183,8 +184,6 @@ export const BookPage = () => {
   );
 
   // suppress unused warning until dialogs are implemented
-  void dialogOpen;
-  void editingItem;
 
   return (
     <div className="flex flex-1 min-h-0 flex-col p-3 gap-0">
@@ -198,12 +197,14 @@ export const BookPage = () => {
         <PageHeader pageHeader={countryHeader} />
       </div>
 
-      {showFilters && (
+      {dialogOpen.showFilters && (
         <div className="shrink-0 pb-3">
           <FilterPanel
             fields={BOOK_FILTER_FIELDS}
             onApply={(filters) => applyFilters(filters)}
-            onReset={() => { resetFilters(); }}
+            onReset={() => {
+              resetFilters();
+            }}
             activeFilterCount={activeFilters.length}
           />
         </div>

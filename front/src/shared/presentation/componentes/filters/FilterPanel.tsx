@@ -11,7 +11,14 @@ interface FilterPanelProps {
 }
 
 const INPUT_CLASS =
-  "h-8 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-[var(--color-teal)] placeholder:text-muted-foreground";
+  "h-9 rounded-md border bg-background px-3 text-sm text-foreground outline-none transition-colors " +
+  "focus:border-[var(--color-teal)] focus:ring-2 focus:ring-[var(--color-teal)]/15 " +
+  "placeholder:text-muted-foreground/50 " +
+  "border-border/60 hover:border-border";
+
+const LABEL_CLASS =
+  "text-[10px] font-semibold uppercase tracking-widest select-none " +
+  "text-[var(--color-teal-dark,#0d9488)]";
 
 export const FilterPanel = ({
   fields,
@@ -29,11 +36,7 @@ export const FilterPanel = ({
     setDraft((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleDateChange = (
-    key: string,
-    part: "from" | "to",
-    value: string
-  ) => {
+  const handleDateChange = (key: string, part: "from" | "to", value: string) => {
     setDraft((prev) => {
       const existing = prev[key];
       const current =
@@ -44,38 +47,24 @@ export const FilterPanel = ({
 
   const buildFilters = (): FilterDto[] => {
     const result: FilterDto[] = [];
-
     for (const field of fields) {
       const raw = draft[field.key];
-
       if (field.type === "text") {
         const value = typeof raw === "string" ? raw.trim() : "";
-        if (value) {
-          result.push({ field: field.key, operator: "contains", Value: value });
-        }
+        if (value) result.push({ field: field.key, operator: "contains", Value: value });
       } else if (field.type === "select") {
         const value = typeof raw === "string" ? raw : "";
-        if (value) {
-          result.push({ field: field.key, operator: "equals", Value: value });
-        }
+        if (value) result.push({ field: field.key, operator: "equals", Value: value });
       } else if (field.type === "dateRange") {
-        const range =
-          raw !== undefined && typeof raw === "object" ? raw : {};
-        if (range.from) {
-          result.push({ field: field.key, operator: "gt", Value: range.from });
-        }
-        if (range.to) {
-          result.push({ field: field.key, operator: "lt", Value: range.to });
-        }
+        const range = raw !== undefined && typeof raw === "object" ? raw : {};
+        if (range.from) result.push({ field: field.key, operator: "gt", Value: range.from });
+        if (range.to) result.push({ field: field.key, operator: "lt", Value: range.to });
       }
     }
-
     return result;
   };
 
-  const handleApply = () => {
-    onApply(buildFilters());
-  };
+  const handleApply = () => onApply(buildFilters());
 
   const handleReset = () => {
     setDraft({});
@@ -83,73 +72,96 @@ export const FilterPanel = ({
   };
 
   return (
-    <div className="flex flex-wrap items-end gap-3 p-3 rounded-lg border bg-[var(--color-teal-soft,#f0fafb)]">
-      {fields.map((field) => {
-        if (field.type === "text") {
-          return (
-            <div key={field.key} className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-foreground">
-                {field.label}
-              </label>
-              <input
-                type="text"
-                className={INPUT_CLASS}
-                placeholder={field.placeholder ?? ""}
-                value={typeof draft[field.key] === "string" ? (draft[field.key] as string) : ""}
-                onChange={(e) => handleTextChange(field.key, e.target.value)}
-              />
-            </div>
-          );
-        }
+    <div
+      className="rounded-xl border px-4 py-3.5"
+      style={{
+        backgroundColor: "var(--color-white, #fff)",
+        borderColor: "rgba(0,0,0,0.07)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)",
+      }}
+    >
+      <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
+        {fields.map((field) => {
+          /* ── Text input ── */
+          if (field.type === "text") {
+            return (
+              <div key={field.key} className="flex flex-col gap-1.5">
+                <label className={LABEL_CLASS}>{field.label}</label>
+                <input
+                  type="text"
+                  className={`${INPUT_CLASS} min-w-[160px]`}
+                  placeholder={field.placeholder ?? ""}
+                  value={
+                    typeof draft[field.key] === "string"
+                      ? (draft[field.key] as string)
+                      : ""
+                  }
+                  onChange={(e) => handleTextChange(field.key, e.target.value)}
+                />
+              </div>
+            );
+          }
 
-        if (field.type === "select") {
-          return (
-            <div key={field.key} className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-foreground">
-                {field.label}
-              </label>
-              <select
-                className={INPUT_CLASS}
-                value={typeof draft[field.key] === "string" ? (draft[field.key] as string) : ""}
-                onChange={(e) => handleSelectChange(field.key, e.target.value)}
-              >
-                <option value="">Todos</option>
-                {field.options?.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          );
-        }
+          /* ── Select → pill group ── */
+          if (field.type === "select") {
+            const current =
+              typeof draft[field.key] === "string"
+                ? (draft[field.key] as string)
+                : "";
+            return (
+              <div key={field.key} className="flex flex-col gap-1.5">
+                <label className={LABEL_CLASS}>{field.label}</label>
+                <div className="flex items-center gap-1 h-9">
+                  <PillButton
+                    active={current === ""}
+                    onClick={() => handleSelectChange(field.key, "")}
+                  >
+                    Todos
+                  </PillButton>
+                  {field.options?.map((opt) => (
+                    <PillButton
+                      key={opt.value}
+                      active={current === opt.value}
+                      onClick={() => handleSelectChange(field.key, opt.value)}
+                    >
+                      {opt.label}
+                    </PillButton>
+                  ))}
+                </div>
+              </div>
+            );
+          }
 
-        if (field.type === "dateRange") {
-          const rangeVal = draft[field.key];
-          const range =
-            rangeVal !== undefined && typeof rangeVal === "object" ? rangeVal : {};
-          return (
-            <div key={field.key} className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-foreground">
-                {field.label}
-              </label>
-              <div className="flex items-center gap-2">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] text-muted-foreground">Desde</span>
+          /* ── Date range ── */
+          if (field.type === "dateRange") {
+            const rangeVal = draft[field.key];
+            const range =
+              rangeVal !== undefined && typeof rangeVal === "object"
+                ? rangeVal
+                : {};
+            return (
+              <div key={field.key} className="flex flex-col gap-1.5">
+                <label className={LABEL_CLASS}>{field.label}</label>
+                <div className="flex items-center gap-2">
                   <input
                     type="date"
-                    className={INPUT_CLASS}
+                    className={`${INPUT_CLASS} w-[148px]`}
+                    title="Desde"
                     value={range.from ?? ""}
                     onChange={(e) =>
                       handleDateChange(field.key, "from", e.target.value)
                     }
                   />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] text-muted-foreground">Hasta</span>
+                  <span
+                    className="text-muted-foreground/50 text-xs font-light shrink-0"
+                    aria-hidden
+                  >
+                    —
+                  </span>
                   <input
                     type="date"
-                    className={INPUT_CLASS}
+                    className={`${INPUT_CLASS} w-[148px]`}
+                    title="Hasta"
                     value={range.to ?? ""}
                     onChange={(e) =>
                       handleDateChange(field.key, "to", e.target.value)
@@ -157,31 +169,60 @@ export const FilterPanel = ({
                   />
                 </div>
               </div>
-            </div>
-          );
-        }
+            );
+          }
 
-        return null;
-      })}
+          return null;
+        })}
 
-      {/* Action buttons */}
-      <div className="flex items-end gap-2 ml-auto">
-        {activeFilterCount !== undefined && activeFilterCount > 0 && (
-          <span className="text-xs text-muted-foreground self-center">
-            {activeFilterCount} activo{activeFilterCount !== 1 ? "s" : ""}
-          </span>
-        )}
-        <Button variant="ghost" size="sm" onClick={handleReset}>
-          Limpiar
-        </Button>
-        <Button
-          size="sm"
-          className="bg-[var(--color-teal)] text-white hover:bg-[var(--color-teal-dark)]"
-          onClick={handleApply}
-        >
-          Aplicar
-        </Button>
+        {/* ── Actions ── */}
+        <div className="flex items-center gap-2 ml-auto self-end pb-[2px]">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded"
+          >
+            Limpiar
+          </button>
+          <Button
+            size="sm"
+            onClick={handleApply}
+            className="gap-1.5 bg-[var(--color-teal)] text-white hover:bg-[var(--color-teal-dark)] h-8 px-4 text-xs font-medium"
+          >
+            Aplicar
+            {activeFilterCount !== undefined && activeFilterCount > 0 && (
+              <span className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full bg-white/25 text-[10px] font-bold leading-none">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
 };
+
+/* ── Pill toggle button ── */
+interface PillButtonProps {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}
+
+const PillButton = ({ active, onClick, children }: PillButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={[
+      "px-3 h-7 rounded-full text-xs font-medium transition-all duration-150 whitespace-nowrap",
+      active
+        ? "bg-[var(--color-teal)] text-white shadow-sm"
+        : "border border-border/70 text-muted-foreground bg-background",
+      !active && "hover:border-[var(--color-teal)]/60 hover:text-[var(--color-teal)]",
+    ]
+      .filter(Boolean)
+      .join(" ")}
+  >
+    {children}
+  </button>
+);
