@@ -1,21 +1,37 @@
-# BookStore API
+# BookStore
 
-API REST para gestión de libros construida con NestJS, Prisma 7 y PostgreSQL, orquestada con Docker Compose.
+Aplicación full-stack para gestión de libros. Backend con NestJS + Prisma, frontend con React + Vite, orquestados con Docker Compose.
 
 ---
 
 ## Stack
 
+### Backend
 | Capa | Tecnología |
 |------|-----------|
 | Runtime | Node.js 22 |
 | Framework | NestJS 11 |
 | ORM | Prisma 7 |
 | Base de datos | PostgreSQL 16 |
+| Caché / colas | Redis 7 |
 | Autenticación | JWT + Passport |
-| Gestor de paquetes | pnpm |
 | Reverse Proxy | Nginx (alpine) |
-| Entorno | Docker Compose |
+
+### Frontend
+| Capa | Tecnología |
+|------|-----------|
+| Framework UI | React 19 |
+| Bundler | Vite 8 |
+| Estilos | Tailwind CSS v4 |
+| Estado servidor | TanStack Query v5 |
+| Estado cliente | Zustand v5 |
+| Formularios | React Hook Form v7 + Zod v4 |
+
+### Infraestructura
+| Herramienta | Uso |
+|-------------|-----|
+| Docker Compose | Orquestación de todos los servicios |
+| pnpm | Gestor de paquetes (back y front) |
 
 ---
 
@@ -26,7 +42,7 @@ API REST para gestión de libros construida con NestJS, Prisma 7 y PostgreSQL, o
 
 ---
 
-## Levantar el entorno
+## Levantar el entorno completo
 
 ```bash
 # Primera vez o tras cambios en dependencias
@@ -35,23 +51,39 @@ docker compose up --build
 # Levantar en background
 docker compose up -d
 
-# Ver logs en tiempo real
-docker compose logs -f backend
-
-# Bajar los contenedores
+# Bajar todos los contenedores
 docker compose down
 ```
 
-El backend corre en `http://localhost:3000` con hot-reload activo.
+### URLs disponibles
+
+| Servicio | URL | Descripción |
+|----------|-----|-------------|
+| Frontend | `http://localhost:5173` | App React (Vite dev server) |
+| API | `http://localhost/api/` | REST API (vía Nginx) |
+| Swagger | `http://localhost/docs` | Documentación interactiva |
+| Backend directo | `http://localhost:3000` | Puerto directo al backend |
+| PostgreSQL | `localhost:5433` | Acceso externo a la BD |
+| Redis | `localhost:6379` | Acceso externo a Redis |
+
+### Ver logs por servicio
+
+```bash
+docker compose logs -f bookstore-frontend-1
+docker compose logs -f bookstore-backend-1
+docker compose logs -f reverse-proxy
+```
 
 ---
 
 ## Variables de entorno
 
-Crea un archivo `.env` en la raíz del proyecto con los siguientes valores:
+Crea un archivo `.env` en la **raíz** del proyecto:
 
 ```env
-PORT=3000
+# Backend
+PORT_BACKEND=3000
+API_URL=http://localhost/api
 
 DB_HOST=postgres
 DB_PORT=5432
@@ -61,60 +93,17 @@ DB_NAME=juju
 
 DATABASE_URL="postgresql://postgres:123456@postgres:5432/juju?schema=public"
 
-REDIS_HOST=localhost
+REDIS_HOST=redis
 REDIS_PORT=6379
 
-JWT_SECRET="strseddsss"
+JWT_SECRET="cambia_esto_en_produccion"
+
+# Frontend
+VITE_API_URL=http://localhost/api
 ```
 
-> **Importante:** dentro de Docker el host de PostgreSQL es `postgres` (nombre del servicio), no `localhost`.
-> Desde tu máquina local (fuera de Docker) usa `localhost:5433`.
-
----
-
-## Migraciones
-
-Ejecutar siempre **dentro del contenedor**:
-
-```bash
-# Crear y aplicar una migración nueva
-docker compose exec backend npx prisma migrate dev --name nombre_migracion
-
-# Aplicar migraciones pendientes (producción)
-docker compose exec backend npx prisma migrate deploy
-
-# Regenerar el cliente de Prisma
-docker compose exec backend npx prisma generate
-```
-
-> Para verificar el nombre exacto del contenedor: `docker ps --format "table {{.Names}}"`
-
----
-
-## Seed
-
-Llena la base de datos con datos iniciales: **2 usuarios** y **200 libros**.
-
-```bash
-docker compose exec backend pnpm run seed
-```
-
-### Usuarios creados
-
-| Campo | Usuario 1 | Usuario 2 |
-|-------|-----------|-----------|
-| Nombre | Admin User | Test User |
-| Email | admin@bookstore.com | test@bookstore.com |
-| Password | Password123! | Password123! |
-
-### Libros creados
-
-- 200 libros de literatura universal en español
-- Precios entre $9.99 y $29.99
-- 1 de cada 5 libros con estado `reserved`, el resto `available`
-- Fechas escalonadas (1 hora entre cada libro) para paginación por cursores
-
-> El seed limpia las tablas antes de insertar. No ejecutar en producción.
+> **Dentro de Docker**, los hosts son los nombres de servicio Docker (`postgres`, `redis`, `backend`), no `localhost`.
+> **Desde tu máquina** (fuera de Docker): PostgreSQL en `localhost:5433`, Redis en `localhost:6379`.
 
 ---
 
@@ -125,176 +114,128 @@ bookStore/
 ├── back/                        # Backend NestJS
 │   ├── src/
 │   │   ├── auth/                # Módulo de autenticación (JWT)
-│   │   ├── book-store/          # Módulo de libros
-│   │   │   ├── domain/          # Modelos e interfaces de dominio
-│   │   │   ├── aplication/      # Casos de uso y DTOs
-│   │   │   └── insfrastructure/ # Repositorios Prisma y controladores
-│   │   ├── shared/              # Utilidades compartidas (DB, DTOs, interfaces)
+│   │   ├── book-store/          # Módulo de libros (domain / application / infrastructure)
+│   │   ├── shared/              # Utilidades compartidas (DB, DTOs, paginación)
 │   │   └── config/              # Validación de variables de entorno
 │   ├── prisma/
-│   │   ├── schema.prisma        # Modelos y migraciones
-│   │   ├── seed.ts              # Script de seed
-│   │   └── migrations/          # Migraciones generadas
+│   │   ├── schema.prisma        # Modelos
+│   │   ├── seed.ts              # Datos iniciales
+│   │   └── migrations/
 │   ├── generated/prisma/        # Cliente Prisma generado (no editar)
-│   ├── prisma.config.ts         # Configuración de Prisma 7
+│   ├── prisma.config.ts
+│   ├── compose.yml              # Servicio backend
+│   └── dockerfile.dev
+├── front/                       # Frontend React + Vite
+│   ├── src/
+│   │   ├── modules/book/        # Módulo de libros (tabla, formulario, hook)
+│   │   └── shared/              # Componentes genéricos, hooks, router, store
+│   ├── compose.yml              # Servicio frontend
 │   └── dockerfile.dev
 ├── reverse-proxy/
-│   └── nginx.conf               # Configuración del reverse proxy Nginx
-├── compose.yml                  # Orquestación principal (PostgreSQL + Nginx)
-├── compose.override.yml         # Variables de entorno por servicio
+│   └── nginx.conf               # Enrutamiento Nginx
+├── scripts/
+│   └── init-databases.sql       # Creación de bases de datos al iniciar postgres
+├── compose.yml                  # Orquestación principal (incluye back + front)
+├── compose.override.yml         # Puertos y variables de entorno por servicio
 └── .env                         # Variables de entorno (no commitear)
 ```
 
 ---
 
-## Modelos
+## Arquitectura de red
 
-### `book`
+```
+Navegador
+    │
+    ├── :5173 ──────────────────► frontend (Vite dev server)
+    │
+    └── :80 ────► Nginx (reverse-proxy)
+                      │
+                      ├── /docs   ──► backend:3000/docs
+                      └── /api/   ──► backend:3000/
+                                          │
+                                     ┌────┴─────┐
+                                     ▼          ▼
+                               postgres:5432  redis:6379
+```
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | String (UUID) | PK generado automáticamente |
-| title | String | Título del libro |
-| author | String | Autor |
-| description | String | Descripción |
-| price | Float | Precio |
-| status | Enum | `available` / `reserved` |
-| created_at | DateTime | Fecha de creación |
-| created_by_id | String? | FK a user |
-
-**Índices para paginación por cursores:**
-- `(created_at DESC, id DESC)` — paginación hacia adelante
-- `(created_at ASC, id ASC)` — paginación hacia atrás
-
-### `user`
-
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | String (UUID) | PK generado automáticamente |
-| name | String | Nombre |
-| email | String | Email único |
-| password | String | Contraseña hasheada (bcrypt) |
-| created_at | DateTime | Fecha de creación |
+Todos los servicios comparten la red Docker interna `network` (bridge). El frontend llama a la API a través de Nginx (`http://localhost/api`) — las peticiones las hace el **navegador**, no el contenedor.
 
 ---
 
-## Reverse Proxy (Nginx)
+## Seed
 
-El stack incluye un reverse proxy basado en **Nginx** que actúa como punto de entrada único en el puerto `80`. Esto evita exponer el backend directamente y permite enrutar el tráfico hacia los distintos servicios de forma centralizada.
-
-### Enrutamiento
-
-| Ruta pública | Destino interno | Descripción |
-|--------------|-----------------|-------------|
-| `localhost/docs` | `backend:3000/docs` | Swagger UI |
-| `localhost/api/` | `backend:3000/` | API REST |
-
-- Las peticiones a `/docs` se redirigen al servidor de documentación de NestJS.
-- Las peticiones a `/api/` se redirigen al backend con strip del prefijo `/api` (por ejemplo, `localhost/api/books` → `backend:3000/books`).
-- Nginx reenvía cabeceras relevantes: `Host`, `X-Real-IP`, `X-Forwarded-For` y `X-Forwarded-Proto`.
-
-### Arquitectura de red
-
-Todos los servicios comparten la misma red Docker interna (`network`, tipo `bridge`):
-
-```
-Internet
-    │
-    ▼
- Nginx :80  (reverse-proxy)
-    │
-    ├── /docs   ──► backend:3000/docs
-    └── /api/   ──► backend:3000/
-                        │
-                   ┌────┴─────┐
-                   ▼          ▼
-             postgres:5432  redis:6379
-```
-
-Nginx y el backend se comunican por nombre de servicio Docker (`backend`), sin necesidad de exponer el puerto `3000` a la máquina host.
-
-### Levantar el stack completo
+Llena la base de datos con datos iniciales: **2 usuarios** y **200 libros**.
 
 ```bash
-# Primera vez o tras cambios en la configuración de Nginx
-docker compose up --build
-
-# Levantar en background
-docker compose up -d
-
-# Ver logs del reverse proxy
-docker compose logs -f reverse-proxy-backend
-
-# Bajar todos los contenedores
-docker compose down
+docker compose exec bookstore-backend-1 pnpm run seed
 ```
 
-> La configuración de Nginx se monta desde `./reverse-proxy/nginx.conf` mediante un bind mount, por lo que cualquier cambio en ese archivo requiere reiniciar el contenedor (`docker compose restart reverse-proxy-backend`).
+### Usuarios creados
+
+| Email | Password | Rol |
+|-------|----------|-----|
+| admin@bookstore.com | Password123! | Admin |
+| test@bookstore.com | Password123! | Usuario |
+
+### Libros creados
+
+- 200 libros de literatura universal en español
+- Precios entre $9.99 y $29.99
+- 1 de cada 5 con estado `reserved`, el resto `available`
+- Fechas escalonadas para pruebas de paginación por cursores
+
+> El seed limpia las tablas antes de insertar. No ejecutar en producción.
 
 ---
 
-## Swagger
+## Migraciones (backend)
 
-La documentación interactiva de la API está disponible en:
+Ejecutar siempre **dentro del contenedor**:
 
+```bash
+# Crear y aplicar una migración nueva
+docker compose exec bookstore-backend-1 npx prisma migrate dev --name nombre
+
+# Aplicar migraciones pendientes (producción)
+docker compose exec bookstore-backend-1 npx prisma migrate deploy
+
+# Regenerar el cliente de Prisma
+docker compose exec bookstore-backend-1 npx prisma generate
 ```
-http://localhost/docs
-```
-
-> Con el reverse proxy activo, accede a través del puerto `80` (sin especificar puerto). La URL directa al backend `http://localhost:3000/docs` también funciona si el puerto está expuesto, pero se recomienda usar la ruta pública.
-
-Incluye todos los endpoints con sus parámetros, cuerpos de request y respuestas. Para endpoints protegidos con `@Auth()`, haz clic en **Authorize** e ingresa el token JWT con el formato:
-
-```
-Bearer <tu_token>
-```
-
----
-
-## Paginación
-
-Los endpoints de listado usan **paginación por cursores** basada en `created_at + id`.
-
-| Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `limit` | number | Cantidad de resultados (default: 10) |
-| `afterCursor` | string | ID del último elemento visto → página siguiente |
-| `beforeCursor` | string | ID del primer elemento visto → página anterior |
-| `search` | string | Búsqueda en `title` y `author` |
-| `filters` | IFilter[] | Filtros dinámicos por campo y operador |
 
 ---
 
 ## Instalar dependencias
 
-Siempre instalar dentro del contenedor para que `package.json` y `pnpm-lock.yaml` se actualicen en tu máquina local (gracias al volume mount):
+Instalar siempre dentro del contenedor para que el lock file se actualice en el host:
 
 ```bash
-# Dependencia de producción
-docker compose exec backend pnpm add <paquete>
+# Backend
+docker compose exec bookstore-backend-1 pnpm add <paquete>
 
-# Dependencia de desarrollo
-docker compose exec backend pnpm add -D <paquete>
+# Frontend
+docker compose exec bookstore-frontend-1 pnpm add <paquete>
 ```
 
-Tras instalar, commitea los archivos actualizados y haz rebuild:
+Tras instalar, commitea el `package.json` y `pnpm-lock.yaml` correspondiente y haz rebuild:
 
 ```bash
-git add back/package.json back/pnpm-lock.yaml
-git commit -m "feat: add <paquete>"
 docker compose up --build
 ```
 
-> El rebuild es necesario porque `node_modules` vive en un volumen anónimo.
+> El rebuild es necesario porque `node_modules` vive en un volumen anónimo separado del bind mount.
 
 ---
 
-## Generar módulos con NestJS CLI
+## Swagger
 
-```bash
-docker compose exec backend npx nest g module nombre
-docker compose exec backend npx nest g controller nombre
-docker compose exec backend npx nest g service nombre
+Documentación interactiva disponible en `http://localhost/docs`.
+
+Para endpoints protegidos, haz clic en **Authorize** e ingresa:
+
+```
+Bearer <tu_token_jwt>
 ```
 
 ---
@@ -312,5 +253,22 @@ export default defineConfig({
 });
 ```
 
-El cliente se genera en `generated/prisma/` (definido por `output` en el schema).
-Los tipos del modelo se importan desde `generated/prisma/client`.
+El cliente se genera en `generated/prisma/` e importa desde `generated/prisma/client`.
+
+---
+
+## Paginación
+
+Los endpoints de listado usan **paginación por cursores** basada en `created_at + id`.
+
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `limit` | number | Cantidad de resultados (default: 20) |
+| `afterCursor` | string | Cursor → página siguiente |
+| `beforeCursor` | string | Cursor → página anterior |
+| `search` | string | Búsqueda en `title` y `author` |
+| `filters` | FilterDto[] | Filtros dinámicos por campo y operador |
+
+### Operadores de filtro disponibles
+
+`equals` · `contains` · `in` · `gt` · `lt`
