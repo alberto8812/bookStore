@@ -67,6 +67,8 @@ export class PrismaBookRepository implements IBookRepository {
         if (hasFilterConditions) conditions.push(filterConditions);
         if (hasSearchCondition) conditions.push(searchCondition);
 
+        //adicionar que me traiga solo los libros que tengan deleted_at en null
+        conditions.push({ deleted_at: null });
         const finalWhere: Prisma.bookWhereInput | undefined =
             conditions.length > 0 ? { AND: conditions } : undefined;
 
@@ -149,8 +151,26 @@ export class PrismaBookRepository implements IBookRepository {
             this.handleDBEceptions(error);
         }
     }
-    update(id: string, dto: UpdateBookStore): Promise<{ message: string; }> {
-        throw new Error("Method not implemented.");
+    async update(id: string, dto: UpdateBookStore): Promise<{ message: string; }> {
+
+        try {
+            await this.prisma.book.update({
+                where: { id },
+                data: {
+                    title: dto.title,
+                    author: dto.autor,
+                    description: dto.description,
+                    price: dto.price,
+                    published_at: dto.published_at,
+                    status: dto.status === StatusBook.AVAILABLE ? 'available' as const : 'reserved' as const,
+                }
+            });
+            return {
+                message: `Book with id ${id} updated successfully`
+            };
+        } catch (error) {
+            this.handleDBEceptions(error);
+        }
     }
 
 
@@ -169,8 +189,22 @@ export class PrismaBookRepository implements IBookRepository {
         }
     }
 
-    remove(id: string): Promise<any> {
-        throw new Error("Method not implemented.");
+    async remove(id: string): Promise<{ message: string; }> {
+        try {
+            //actualizar el deleted_at con fecha actual
+            await this.prisma.book.update({
+                where: { id },
+                data: {
+                    deleted_at: new Date(),
+                },
+            });
+            return {
+                message: `Book with id ${id} deleted successfully`
+            };
+        } catch (error) {
+            this.logger.error(`Error deleting book with id ${id}`, error);
+            this.handleDBEceptions(error);
+        }
     }
 
     private async getCursorDate(cursor: string): Promise<Date> {
