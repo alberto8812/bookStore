@@ -245,7 +245,6 @@ export class PrismaBookRepository implements IBookRepository {
 
     }
     private handleDBEceptions(error: any): never {
-        console.log(error)
         if (error.code === 11000) {
             throw new BadRequestException(error.errorResponse.errmsg);
         }

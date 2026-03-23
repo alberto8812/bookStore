@@ -148,7 +148,6 @@ export const BookPage = () => {
           {book.status === "available" ? "Disponible" : "No disponible"}
         </Badge>
       </div>
-
       {/* Description */}
       <p
         className="text-xs mt-2.5 line-clamp-2 leading-relaxed"
@@ -156,7 +155,6 @@ export const BookPage = () => {
       >
         {book.description}
       </p>
-
       {/* Bottom row: id + price + actions */}
       <div
         className="flex items-center justify-between mt-3 pt-3"
@@ -197,8 +195,6 @@ export const BookPage = () => {
       </div>
     </div>
   );
-
-  // suppress unused warning until dialogs are implemented
 
   return (
     <div className="flex flex-1 min-h-0 flex-col p-3 gap-0">

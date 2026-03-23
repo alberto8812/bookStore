@@ -14,6 +14,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,   // binds to 0.0.0.0 — required for Docker port mapping
     watch: {
       usePolling: true,
       interval: 100,
