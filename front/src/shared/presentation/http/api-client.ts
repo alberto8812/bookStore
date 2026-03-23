@@ -2,7 +2,7 @@ import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 
 // TODO: cuando implementes Zustand, importa el store así:
-// import { useAuthStore } from "@/shared/store/auth.store"
+import { useAuthStore } from "@/shared/presentation/store/auth.store";
 
 // import { auth } from "@/auth";
 
@@ -37,7 +37,7 @@ instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     // if (session?.error === "RefreshTokenError") throw new AuthenticationError();
     // const token = session?.access_token;
 
-    const token = _token;
+    const token = useAuthStore.getState().token;
     if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
     }
@@ -76,18 +76,7 @@ instance.interceptors.response.use(
     }
 );
 
-// ─── Token temporal (hasta implementar Zustand) ───────────────────────────────
-let _token: string | null = null;
 
-/** Llama esto después del login para setear el token globalmente */
-export function setAuthToken(token: string | null) {
-    _token = token;
-}
-
-/** Limpia el token en logout */
-export function clearAuthToken() {
-    _token = null;
-}
 
 // ─── Wrapper con la misma firma que el fetch original ────────────────────────
 // Permite usar: apiClient<T>(path, { method, body, headers })

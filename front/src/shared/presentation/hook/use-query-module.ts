@@ -1,6 +1,6 @@
 
 
-import { use, useState } from "react";
+import { useState } from "react";
 import {
   useQuery,
   useMutation,
@@ -11,6 +11,7 @@ import {
 import type { PaginatedResponse } from "@/shared/domain/base/base-entity.types";
 import type { CursorPaginationParams } from "@/shared/domain/base/base-repository.interface";
 import { useToast } from "./use-toast";
+import { useAuthStore } from "../store/auth.store";
 
 interface CursorPaginationState {
   limit: number;
@@ -68,6 +69,9 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     ? (isNewRecord ? ({} as T) : detailQuery.data)
     : listQuery.data;
 
+  const listData = isDetailView ? undefined : listQuery.data;
+  const detailData = isDetailView ? (isNewRecord ? ({} as T) : detailQuery.data) : undefined;
+
   const isLoading = listQuery.isLoading || detailQuery.isLoading;
 
 
@@ -103,13 +107,19 @@ export function useQueryModule<T>(queryKey: string, actions: PaginatedActions<T>
     mutationFn: (data: Partial<T>) => actions.login ? actions.login(data) : Promise.reject(new Error("Login no soportado")),
     onSuccess: (data) => {
       console.log("Login response:", data);
+      useAuthStore.getState().setLogin(data as any, (data as any).token);
       toast.success("Login exitoso.");
     },
-    onError: handleError,
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Error desconocido";
+      toast.error(`Login fallido: ${message}`);
+    },
   });
 
   return {
     data,
+    listData,
+    detailData,
     isLoading,
     pagination,
     setPagination,

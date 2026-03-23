@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { columnsBook } from "./components/columns-Book";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/shared/presentation/store/auth.store";
 
 export const BookPage = () => {
-  const { data, isLoading, setPagination, pagination } = useBook();
+  const { authstatus } = useAuthStore();
+  const { listData, isLoading, setPagination, pagination } = useBook();
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState({
     importOpen: false,
@@ -29,12 +31,14 @@ export const BookPage = () => {
       },
     ],
     import: [
-      {
-        title: "Crear",
-        icon: <Plus className="mr-1.5 h-3.5 w-3.5" />,
-        onClick: () => handleCreate(),
-      },
-    ],
+      authstatus === "authenticated"
+        ? {
+            title: "Crear",
+            icon: <Plus className="mr-1.5 h-3.5 w-3.5" />,
+            onClick: () => handleCreate(),
+          }
+        : undefined,
+    ].filter((item): item is NonNullable<typeof item> => Boolean(item)),
   };
 
   const columnsWithActions = [
@@ -52,14 +56,16 @@ export const BookPage = () => {
           >
             <Pencil className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-destructive"
-            onClick={() => handleDelete(row.original.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {authstatus === "authenticated" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-destructive"
+              onClick={() => handleDelete(row.original.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -100,7 +106,7 @@ export const BookPage = () => {
             className="text-xs mt-0.5 truncate"
             style={{ color: "var(--color-text-gray)" }}
           >
-            {book.author}
+            {book.autor}
           </p>
         </div>
         <Badge
@@ -183,12 +189,12 @@ export const BookPage = () => {
         >
           <MainDataTable
             columns={columnsWithActions}
-            data={data?.data}
-            pageCount={data?.pageCount}
-            rowCount={data?.rowCount}
+            data={listData?.data}
+            pageCount={listData?.pageCount}
+            rowCount={listData?.rowCount}
             isLoading={isLoading}
             onPaginationChange={setPagination}
-            paginationState={data?.pageInfo ?? { limit: pagination.limit }}
+            paginationState={listData?.pageInfo ?? { limit: pagination.limit }}
             renderCard={renderBookCard}
           />
         </Show>

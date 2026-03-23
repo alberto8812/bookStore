@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldRenderer } from "@/shared/presentation/componentes/field-from/FiedlRender";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/shared/presentation/store/auth.store";
+import { Show } from "@/shared/presentation/componentes/ui/Show.component";
 
 interface Props {
   isloading?: boolean;
@@ -21,6 +23,7 @@ export const BookForm = ({
   defaultValues,
   id,
 }: Props) => {
+  const { authstatus } = useAuthStore();
   const computedDefaults: Record<string, unknown> = {};
   for (const field of allFields) {
     computedDefaults[field.name] =
@@ -49,16 +52,18 @@ export const BookForm = ({
             isLoading={isloading}
           />
         ))}
-        <div className="col-span-2 flex justify-end pt-2">
-          <Button type="submit" disabled={isloading}>
-            {isloading
-              ? "Guardando..."
-              : id
-                ? "Guardar cambios"
-                : "Crear libro"}
-          </Button>
-          <Button disabled={isloading}>Cancelar</Button>
-        </div>
+        <Show when={authstatus === "authenticated"} fallback={undefined}>
+          <div className="col-span-2 flex justify-end pt-2">
+            <Button type="submit" disabled={isloading}>
+              {isloading
+                ? "Guardando..."
+                : id
+                  ? "Guardar cambios"
+                  : "Crear libro"}
+            </Button>
+            <Button disabled={isloading}>Cancelar</Button>
+          </div>
+        </Show>
       </form>
     </Form>
   );

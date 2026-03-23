@@ -30,7 +30,7 @@ export const PageHeader = ({ pageHeader }: PageHeaderProps) => {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          {pageHeader.import?.map((action) => (
+          {pageHeader?.import?.map((action) => (
             <Button
               key={action.title}
               variant="outline"

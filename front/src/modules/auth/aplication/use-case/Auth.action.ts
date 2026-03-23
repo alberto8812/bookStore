@@ -1,5 +1,5 @@
 import { generiActionQuery } from "@/shared/aplication/use-case/generi-action-query";
-import type { AuthEntity } from "@/modules/book/domain/entity/auth.entity";
+import type { AuthEntity } from "@/modules/auth/domain/entity/auth.entity";
 
 const actions = generiActionQuery<AuthEntity>("/auth");
 

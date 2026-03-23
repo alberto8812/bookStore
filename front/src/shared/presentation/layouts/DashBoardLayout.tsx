@@ -5,30 +5,33 @@ import { AppSidebar } from "../componentes/ui/Sidebar";
 import type { AppSidebarConfig } from "../componentes/ui/Sidebar";
 import { ErrorBoundary } from "../handkeErrors/GlobalErrorBoundary";
 import { PageError } from "../handkeErrors/PageError";
-
-const sidebarConfig: AppSidebarConfig = {
-  brand: {
-    name: "BookStore",
-    subtitle: "",
-    icon: BookOpen,
-  },
-  groups: [
-    {
-      label: "Navegación",
-      items: [
-        { title: "Home", url: "/dashboard", icon: Home },
-        { title: "Book Store", url: "/dashboard/books", icon: BookOpen },
-      ],
-    },
-  ],
-  user: {
-    name: "Carlos Velasco",
-    email: "carlos@bookstore.com",
-    avatar: "",
-  },
-};
+import { useAuthStore } from "../store/auth.store";
 
 export const DashboardLayout = () => {
+  const user = useAuthStore((s) => s.user);
+
+  const sidebarConfig: AppSidebarConfig = {
+    brand: {
+      name: "BookStore",
+      subtitle: "",
+      icon: BookOpen,
+    },
+    groups: [
+      {
+        label: "Navegación",
+        items: [
+          { title: "Home", url: "/dashboard", icon: Home },
+          { title: "Book Store", url: "/dashboard/books", icon: BookOpen },
+        ],
+      },
+    ],
+    user: {
+      name: user?.username ?? 'Usuario',
+      email: user?.email ?? '',
+      avatar: "",
+    },
+  };
+
   return (
     <ErrorBoundary fallback={() => <PageError />}>
       <SidebarProvider>

@@ -1,7 +1,18 @@
+import { useEffect } from "react";
+import { useAuthStore } from "@/shared/presentation/store/auth.store";
 import { LoginForm } from "../component/logintForm";
 import { BookOpen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
+  const navigate = useNavigate();
+  const authstatus = useAuthStore((s) => s.authstatus);
+
+  useEffect(() => {
+    if (authstatus === 'authenticated') {
+      navigate('/dashboard');
+    }
+  }, [authstatus, navigate]);
   return (
     <div className="min-h-svh grid md:grid-cols-2">
       {/* Panel izquierdo — Marca (oculto en móvil) */}
@@ -30,7 +41,8 @@ export const LoginPage = () => {
 
           {/* Tagline */}
           <p className="text-white/60 text-sm text-center max-w-xs leading-relaxed">
-            Gestiona tu inventario, controla tu catálogo y mantén todo en orden desde un solo lugar.
+            Gestiona tu inventario, controla tu catálogo y mantén todo en orden
+            desde un solo lugar.
           </p>
         </div>
 
@@ -49,7 +61,9 @@ export const LoginPage = () => {
           >
             <BookOpen className="w-4 h-4 text-white" strokeWidth={1.5} />
           </div>
-          <span className="text-lg font-semibold text-foreground">BookStore</span>
+          <span className="text-lg font-semibold text-foreground">
+            BookStore
+          </span>
         </div>
 
         <div className="w-full max-w-sm">
